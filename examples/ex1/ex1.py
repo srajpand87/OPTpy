@@ -19,6 +19,8 @@ class KKflow(Workflow):
         """
         super(KKflow, self).__init__(**kwargs)
         self.structure = kwargs['structure']
+        self.case = kwargs['case']
+        self.grid_response = kwargs['grid_response']
 
     def write(self):
         """ Makes KK directory.
@@ -58,19 +60,61 @@ class KKflow(Workflow):
         rprim=lattice
         ang2bohr=1.88972613
         acell=np_ones(3)*ang2bohr
-        print lattice
-        print acell
 #       Write pvectors file
-
+#       symmetries/pvectors file:
+        filename=SYMdir+"/pvectors"
+        f=open(filename,"w")
+        f.write(str(lattice)+"\n")
+        f.write(" ".join(map(str, acell[:]))+"\n")
+        f.close()
 #       KK directory:
         dirname=path.dirname(path.abspath(__file__))
         newdir="KK"
         KKdir=path.join(dirname,newdir)
         if not path.exists(KKdir):
             mkdir(KKdir)
+#       Write KK/run.sh file
+        filename=KKdir+"/run.sh"
+        f=open(filename,"w")
+        f.write("#!/bin/bash\n\n")
+        f.write("IBZ=ibz\n")
+        f.write("CASE="+self.case+"\n\n")
+        f.write("#Copy files\n")
+	f.write("cp ../symmetries/pvectors .\n")
+	f.write("cp ../symmetries/sym.d .\n\n")
+        f.write("#Executable\n")
+        f.write("$IBZ -abinit -tetrahedra -cartesian -symmetries -reduced -mesh\n\n")
+        f.write("#Rename output files:\n")
+	f.write("NKPT=`wc kpoints.reciprocal | awk '{print $1}'`\n\n")
+	f.write("mv kpoints.reciprocal ../$CASE.klist_$NKPT\n")
+   	f.write("mv kpoints.cartesian ../symmetries/$CASE.kcartesian_$NKPT\n")
+   	f.write("mv tetrahedra ../symmetries/tetrahedra_$NKPT\n")
+   	f.write("mv Symmetries.Cartesian ../symmetries/Symmetries.Cartesian_$NKPT\n")
+   	f.write("cd ..\n")
+   	f.write("rm -rf TMP/")
+        f.close()
+#       Write KK/grid file
+        filename=KKdir+"/grid"
+        f=open(filename,"w")
+        f.write(" ".join(map(str, self.grid_response[:]))+"\n")
+        f.close()
+#       PENDING: need to get rid of this file:
+#       Write KK/fort.83
+#       0 if 'odd_rank'
+#       1 if system was rendered non-centrosymmetric via odd_rank.sh
+#       2 normal case
+        filename=KKdir+"/grid"
+        f=open(filename,"w")
+        f.write("2 \n") 
+        f.close()
+        
+
+        
 
 flow = KKflow(
-   structure=Structure.from_file('../data/structures/GaAs.json')
+   case="gaas",
+   structure=Structure.from_file('../data/structures/GaAs.json'),
+   grid_response=[4,4,4],
 )
 flow.write()
 
