@@ -6,4 +6,4 @@ from . import io
 from .external import Structure
 from .core import *
 from .tasks import *
-from .utils import KgridTask
+from .utils import *
