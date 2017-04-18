@@ -1,4 +1,4 @@
-from os import path, mkdir,chdir
+from os import path, mkdir,curdir
 from ..external import Structure 
 from ..core import Workflow 
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer 
@@ -34,7 +34,8 @@ class KKflow(Workflow):
         nsym=len(SymmOp)
 
 #       Symmetries directory:
-        dirname=path.dirname(path.abspath(__file__))
+#        dirname=path.dirname(path.abspath(__file__))
+        dirname=path.realpath(curdir)
         newdir="symmetries"
         SYMdir=path.join(dirname,newdir)
         if not path.exists(SYMdir):
@@ -67,7 +68,8 @@ class KKflow(Workflow):
         f.write(" ".join(map(str, acell[:]))+"\n")
         f.close()
 #       KK directory:
-        dirname=path.dirname(path.abspath(__file__))
+        #dirname=path.dirname(path.abspath(__file__))
+        dirname=path.realpath(curdir)
         newdir="KK"
         KKdir=path.join(dirname,newdir)
         if not path.exists(KKdir):
@@ -102,7 +104,7 @@ class KKflow(Workflow):
 #       0 if 'odd_rank'
 #       1 if system was rendered non-centrosymmetric via odd_rank.sh
 #       2 normal case
-        filename=KKdir+"/grid"
+        filename=KKdir+"/fort.83"
         f=open(filename,"w")
         f.write("2 \n") 
         f.close()
