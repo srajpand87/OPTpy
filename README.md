@@ -7,6 +7,8 @@ Documentation
 
 This repository is a python script with automatic workflows to compute optical responses of materials.
 The script can read geometry data from material sciences repositories as PyMatGen, and other common file formats.
+See a list of examples in the "examples" directory (under construction).
+
 
 Below we show an example of calculation obtained with this script. 
 
