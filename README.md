@@ -5,7 +5,21 @@ A python module to operate Tiniba (Under construction).
 Documentation
 -------------
 
+This repository is a python script with automatic workflows to compute optical responses of materials.
+The script can read geometry data from material sciences repositories as PyMatGen, and other common file formats.
+
+Below we show an example of calculation obtained with this script. 
+
+ 
+<div class="image">
 <a href="url"><img src="https://github.com/trangel/OPTpy/blob/master/doc/figures/GeS-responses.png" height="300" ></a><br clear="all" />
+<div>Optical spectra calculated with OPTpy and Tiniba.
+<small> Shift current (top) and linear absorption (bottom).
+</small>
+</div>
+</div>
+
+
 
 Requirements
 ------------
