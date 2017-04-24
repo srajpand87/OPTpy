@@ -5,7 +5,7 @@ A python module to operate Tiniba (Under construction).
 Documentation
 -------------
 
-<a href="url"><img src="https://github.com/trangel/OPTpy/doc/figures/GeS-responses.png" height="300" ></a><br clear="all" />
+<a href="url"><img src="https://github.com/trangel/OPTpy/tree/master/doc/figures/GeS-responses.png" height="300" ></a><br clear="all" />
 
 Requirements
 ------------
