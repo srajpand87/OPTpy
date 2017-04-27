@@ -41,14 +41,8 @@ class AbinitWfnTask(AbinitTask):
             Prefix used as a rootname for abinit calculations.
         structure : pymatgen.Structure
             Structure object containing information on the unit cell.
-        ngkpt : list(3), int, optional
-            K-points grid. Number of k-points along each primitive vector
-            of the reciprocal lattice.
-        kshift : list(3), float, optional
-            Relative shift of the k-points grid along each direction,
-            as a fraction of the smallest division along that direction.
-        qshift : list(3), float, optional
-            Absolute shift of the k-points grid along each direction.
+        kpt : list(nkpt,3), float, optional
+            List of k-points in reciprocal-lattice coordinates.
         input_wavefunction_fname: str, optional
             Name of previously compute wavefunction file, in case you want
             to restart from there.
@@ -95,6 +89,9 @@ class AbinitWfnTask(AbinitTask):
             tolwfr = kwargs.get('tolwfr', 1e-16),
             iscf = kwargs.get('iscf', -3),
             istwfk = kwargs.get('istwfk', '*1'),
+            kpt = kwargs.get('kpt',[0,0,0]),
+            kptopt = 0,
+            nkpt = len(kwargs.get('kpt',[0,0,0])),
             )
         return variables
 

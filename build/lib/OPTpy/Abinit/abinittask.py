@@ -58,8 +58,6 @@ class AbinitTask(DFTTask, IOTask):
         self.prefix = kwargs.get('prefix', 'abinit')
 
         self.input = AbinitInput(fname=self.prefix + '.in')
-        print("type"+str(type(self.structure)))
-#        print(self.structure.to_abivars())
         self.input.set_structure(self.structure)
 
 #TODO: do this with pymatgen?
