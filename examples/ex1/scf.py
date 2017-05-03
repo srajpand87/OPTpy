@@ -21,8 +21,8 @@ task = AbinitScfTask(
     nproc = 1,
     nproc_per_node = 1,
     mpirun = 'mpirun',
-    nproc_flag = '-n',
-    nproc_per_node_flag = '--npernode',
+    nproc_flag = '',
+    nproc_per_node_flag = '',
     )
 
 
