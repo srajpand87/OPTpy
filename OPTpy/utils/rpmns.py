@@ -7,11 +7,16 @@ class RPMNSflow(Workflow):
     def __init__(self,**kwargs):
         """ 
         keyword arguments:
-        structure : pymatgen.Structure
-            Structure object containing information on the unit cell.
+        nval : Number of valence bands
+        ecut : Kinetic energy cutoff
+        nspinor=1 : Number of spinorial components
+        nkTetra=5 : Number of k-points for Tetrahedral integration
         """
         super(RPMNSflow, self).__init__(**kwargs)
         self.nval = kwargs['nval']
+        self.nkTetra = kwargs['nkTetra']
+        self.ecut = kwargs['ecut']
+        self.nspinor= kwargs['nspinor']
 
     def write(self):
         """ Makes RPMNS directory.
@@ -41,4 +46,14 @@ class RPMNSflow(Workflow):
         f.write("sccp='.false.'\n")
         f.write("lsccp='.false.'\n\n")
         f.write("rpmns $WFK $rho $em $pmn $rhomm $lpmn $lpmm $sccp $lsccp\n")
+#       Rename files:
+        postfix=""
+        if ( self.nspinor == 2 ):
+            postfix="-spin"
+        f.write("cp eigen.d ../eigen_%s_%s %s\n" 
+            %(str(self.nkTetra),str(int(self.ecut)),postfix))
+        f.write("cp pmnhalf.d ../pmn_%s_%s %s\n" 
+            %(str(self.nkTetra),str(int(self.ecut)),postfix))
+        f.write("cp pnn.d ../pnn_%s_%s %s\n" 
+            %(str(self.nkTetra),str(int(self.ecut)),postfix))
         f.close()

@@ -15,6 +15,7 @@ Examples/data/structures/write-GaAs-structure.py
 Examples/data/structures/write-Si-structure.py
 Examples/ex1/checksyms.py
 Examples/ex1/kk.py
+Examples/ex1/rpmns.py
 Examples/ex1/scf.py
 Examples/ex1/wfn.py
 OPTpy/__init__.py
@@ -56,6 +57,7 @@ OPTpy/io/variable.py
 OPTpy/utils/__init__.py
 OPTpy/utils/formatting.py
 OPTpy/utils/kk.py
+OPTpy/utils/responses.py
 OPTpy/utils/rpmns.py
 OPTpy/utils/units.py
 OPTpy/utils/various.py
