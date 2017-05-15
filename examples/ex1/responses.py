@@ -1,9 +1,14 @@
 from OPTpy import RESPONSESflow
 
 flow = RESPONSESflow(
+   case="gaas",
    lt="total",
    nband=18,
+   nval_total=8,
+#  The number of bands to calculate the response could be less than the total number of bands above:
+   ncond=8,
    nval=8,
+#
    ecut=5.0,
    nspinor=1,
    nkTetra=5,
