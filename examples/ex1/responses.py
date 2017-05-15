@@ -3,16 +3,21 @@ from OPTpy import RESPONSESflow
 flow = RESPONSESflow(
    case="gaas",
    lt="total",
+#  Total number of bands in the NSCF calculation:
    nband=18,
+#  Total number fo valence bands:
    nval_total=8,
-#  The number of bands to calculate the response could be less than the total number of bands above:
+#  Number of valence and conduction bands to compute the response:
+#  These could be less than the total number of bands.
    ncond=8,
    nval=8,
-#
-   ecut=5.0,
-   nspinor=1,
+#  Number of k-points in the tetrahedra file: 
    nkTetra=5,
-   scissors=0,
+#  Number of spinorial components:
+   nspinor=1,
+#  Kinetic energy cutoff (Ha):
+   ecut=5.0,
+#  Response to calculate, see Doc. in responses.py
    response=1,
    components=["xx","yy","zz"],
    vnlkss=False,
