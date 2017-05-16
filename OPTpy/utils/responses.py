@@ -5,6 +5,24 @@ __all__ = ['RESPONSESflow']
 
 #   Global variables for this class:
 RESPdir="RESP"
+#       Response name
+#       1  chi1----linear response           24 calChi1-layer linear response     
+#       3  eta2----bulk injection current    25 calEta2-layer injection current   
+#       41 zeta----bulk spin injection       29 calZeta-layer spin injection      
+#       21 shg1L---Length gauge-1w&2w faster 22 shg2L---Length gauge-2w           
+#       42 shg1V---Velocity gauge-1w&2w      43 shg2V---Velocity gauge-2w         
+#       44 shg1C---Layer-Length gauge-1w&2w  45 shg2C---Layer-Length gauge-2w     
+#       26 ndotccp-layer carrier injection   27 ndotvv--carrier injection 
+responses_dict={
+    1  : 'chi1'  , 24 : 'calChi1-layer',
+    3  : 'eta2'  , 25 : 'calEta2-layer', 
+    41 : 'zeta'  , 29 : 'calZeta-layer' , 
+    21 : 'shg1L' , 22 : 'shg2L', 
+    26 : 'ndotccp-layer' ,  27 : 'ndotvv',
+    42 : 'shg1V' , 43 : 'shg2V',
+    44 : 'shg1C' , 45 : 'shg2C' 
+}
+components_dict={ 'x' : 1, 'y' : 2, 'z' : 3 }
 
 class RESPONSESflow(Workflow):
     def __init__(self,**kwargs):
@@ -145,13 +163,14 @@ class RESPONSESflow(Workflow):
         f.write("cp ../pmn_%s .\n" % (self.case))
         f.write("#Executable\n set_input_all tmp_%s spectra.params_%s\n" % (self.case,self.case))
 #       Integrate each response at a time:
+        resp_name=responses_dict[self.response]
         f.write("#Integrate each component at a time:\n")
         for component in self.components:
             f.write("#Component %s\n" % (component)) 
             f.write("sed s/Integrand_%s/%s.%s.dat_%s/ tmp_%s >tmp1_%s\n"
-            % (self.case,self.prefix,component,self.case,self.case,self.case))
+            % (self.case,resp_name,component,self.case,self.case,self.case))
             f.write("sed s/Spectrum_%s/%s.%s.spectrum_ab_%s/ tmp1_%s > int_%s_%s\n"
-            % (self.case,self.prefix,component,self.case,self.case,component,self.case))
+            % (self.case,resp_name,component,self.case,self.case,component,self.case))
             f.write("#Executable\ntetra_method_all int_%s_%s\n\n" 
             % (component,self.case))
 
@@ -176,24 +195,6 @@ class RESPONSESflow(Workflow):
 
 #       Get variables from input variables:
         n_components=len(self.components)
-#       Response name
-#       1  chi1----linear response           24 calChi1-layer linear response     
-#       3  eta2----bulk injection current    25 calEta2-layer injection current   
-#       41 zeta----bulk spin injection       29 calZeta-layer spin injection      
-#       21 shg1L---Length gauge-1w&2w faster 22 shg2L---Length gauge-2w           
-#       42 shg1V---Velocity gauge-1w&2w      43 shg2V---Velocity gauge-2w         
-#       44 shg1C---Layer-Length gauge-1w&2w  45 shg2C---Layer-Length gauge-2w     
-#       26 ndotccp-layer carrier injection   27 ndotvv--carrier injection 
-        responses_dict={
-            1  : 'chi1'  , 24 : 'calChi1-layer',
-            3  : 'eta2'  , 25 : 'calEta2-layer', 
-            41 : 'zeta'  , 29 : 'calZeta-layer' , 
-            21 : 'shg1L' , 22 : 'shg2L', 
-            26 : 'ndotccp-layer' ,  27 : 'ndotvv',
-            42 : 'shg1V' , 43 : 'shg2V',
-            44 : 'shg1C' , 45 : 'shg2C' 
-}
-        components_dict={ 'x' : 1, 'y' : 2, 'z' : 3 }
         resp_name=responses_dict[self.response]
 #       spectra.params file:
         filename=RESPdir+"/spectra.params_"+self.case
