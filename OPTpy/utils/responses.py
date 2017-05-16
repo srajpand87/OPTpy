@@ -139,7 +139,7 @@ class RESPONSESflow(Workflow):
 #       run.sh
         filename=RESPdir+"/run.sh"
         f=open(filename,"w")
-        f.write("cp ../symmetries/tetrahedra_%i .\n" % (self.nkTetra))
+        f.write("cp ../symmetries/tetrahedra_%i .\n" % (self.case))
         f.write("cp ../symmetries/Symmetries.Cartesian_%i Symmetries.Cartesian\n" % (self.nkTetra))
         f.write("cp ../eigen_%s .\n" % (self.case))
         f.write("cp ../pmn_%s .\n" % (self.case))
