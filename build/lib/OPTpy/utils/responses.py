@@ -4,7 +4,7 @@ from ..core import Workflow
 __all__ = ['RESPONSESflow']
 
 #   Global variables for this class:
-LATMdir="LATM"
+RESPdir="RESP"
 
 class RESPONSESflow(Workflow):
     def __init__(self,**kwargs):
@@ -69,12 +69,12 @@ class RESPONSESflow(Workflow):
 
 
     def write_latm_input(self):
-        """ Write input files for LATM"""
+        """ Write input files for RESP"""
         from os import path, mkdir,curdir
 
-#       Create LATM dir.:
-        if not path.exists(LATMdir):
-            mkdir(LATMdir)
+#       Create RESP dir.:
+        if not path.exists(RESPdir):
+            mkdir(RESPdir)
 
 
 #       Get case name:
@@ -93,7 +93,7 @@ class RESPONSESflow(Workflow):
         energy_data_filename= "eigen_"+self.case
         energys_data_filename= "energys.d_"+self.case
         half_energys_data_filename= "halfenergys.d_"+self.case
-        pmn_data_filename= "me_pmn_"+self.case
+        pmn_data_filename= "pmn_"+self.case
         rmn_data_filename= "rmn.d_"+self.case
         der_data_filename= "der.d_"+self.case
         tet_list_filename= "tetrahedra_"+self.case
@@ -101,7 +101,7 @@ class RESPONSESflow(Workflow):
         spectrum_filename= "Spectrum_"+self.case
  
 #       1. write tmp_$case file:
-        filename=LATMdir+"/tmp_"+self.case
+        filename=RESPdir+"/tmp_"+self.case
         f=open(filename,"w")
 #            % (self.lt,case,self.scissors,self.option,self.nval,self.nval_total,self.ncond,ncond_total,self.response,components_list,self.smearvalue,str(self.vnlkss)))
         f.write("&INDATA\n")
@@ -135,12 +135,12 @@ class RESPONSESflow(Workflow):
     def write_run(self):
         """ Writes file run.sh """
 #       run.sh
-        filename=LATMdir+"/run.sh"
+        filename=RESPdir+"/run.sh"
         f=open(filename,"w")
         f.write("cp ../symmetries/tetrahedra_%i .\n" % (self.nkTetra))
         f.write("cp ../symmetries/Symmetries.Cartesian_%i Symmetries.Cartesian\n" % (self.nkTetra))
         f.write("cp ../eigen_%s .\n" % (self.case))
-        f.write("cp ../me_pmn_%s .\n" % (self.case))
+        f.write("cp ../pmn_%s .\n" % (self.case))
         f.close()
 
     def write_spectra_params(self):
@@ -170,7 +170,7 @@ class RESPONSESflow(Workflow):
         components_dict={ 'x' : 1, 'y' : 2, 'z' : 3 }
         resp_name=responses_dict[self.response]
 #       spectra.params file:
-        filename=LATMdir+"/spectra.params_"+self.case
+        filename=RESPdir+"/spectra.params_"+self.case
         f=open(filename,"w")
         f.write("%i\n" % (n_components))
         for ii in range(n_components):
@@ -186,8 +186,6 @@ class RESPONSESflow(Workflow):
             for jj in range(len(cc)):
                 f.write("%i " % (cci[jj]))
             f.write("\n") 
-#1 chi1.xx.dat_385_10-spin 501 T
-# 1 1? 
         f.close()       
 
 

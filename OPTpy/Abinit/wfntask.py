@@ -1,6 +1,9 @@
 from __future__ import print_function
 import os
-
+from numpy import fromfile as np_fromfile
+from numpy import reshape as np_reshape
+from numpy import ndarray as ndarray
+from numpy import dot,round
 from .abinittask import AbinitTask
 
 __all__ = ['AbinitWfnTask']
@@ -80,6 +83,29 @@ class AbinitWfnTask(AbinitTask):
                 # Maybe warn the user that ecut is in Hartree?
                 pass
 
+#       Read k-points from file:
+        nkTetra = kwargs['nkTetra']
+        kpt_filename="symmetries/"+self.prefix+".kcartesian_"+str(nkTetra)
+        kcartesian=np_fromfile(kpt_filename,sep= ' ')
+#       Get reciprocal lattice vectors:
+#       Pymatgen. lattice. reciprocal_lattice(self)
+#       Get inverse matrix, to then convert to recp.
+#       Note that cartesian coordinates are in angstrom:
+        bohr2ang=0.529177249
+        reciprocal_lattice=self.structure.lattice.reciprocal_lattice
+        invM = reciprocal_lattice.inv_matrix/bohr2ang
+#       Check k-points in file are OK
+        nk=kcartesian.size/3
+        if ( nk != nkTetra ):
+            print("%i k-points found in file %s.\nExpecting %i \n" % (nk,nkTetra))
+            exit(1)
+        kcartesian=np_reshape(kcartesian,(nk,3))
+        kpt=ndarray(shape=(nkTetra,3),dtype=float) 
+        for ik in range(nkTetra):
+             kk=kcartesian[ik][:]
+             kred=dot(kk, invM)
+             kpt[ik][:]=round(kred,6)
+
         variables = dict(
             ecut = ecut,
             nband = nband,
@@ -89,9 +115,10 @@ class AbinitWfnTask(AbinitTask):
             tolwfr = kwargs.get('tolwfr', 1e-16),
             iscf = kwargs.get('iscf', -3),
             istwfk = kwargs.get('istwfk', '*1'),
-            kpt = kwargs.get('kpt',[0,0,0]),
+#            kpt = kwargs.get('kpt',[0,0,0]),
+            kpt = kpt,
             kptopt = 0,
-            nkpt = len(kwargs.get('kpt',[0,0,0])),
+            nkpt = nkTetra,
             )
         return variables
 
