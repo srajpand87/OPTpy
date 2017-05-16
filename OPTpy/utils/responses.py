@@ -98,7 +98,7 @@ class RESPONSESflow(Workflow):
         pmn_data_filename= "pmn_"+self.case
         rmn_data_filename= "rmn.d_"+self.case
         der_data_filename= "der.d_"+self.case
-        tet_list_filename= "tetrahedra_"+self.case
+        tet_list_filename= "tetrahedra_"+str(self.nkTetra)
         integrand_filename= "Integrand_"+self.case
         spectrum_filename= "Spectrum_"+self.case
  
@@ -139,7 +139,7 @@ class RESPONSESflow(Workflow):
 #       run.sh
         filename=RESPdir+"/run.sh"
         f=open(filename,"w")
-        f.write("cp ../symmetries/tetrahedra_%s .\n" % (self.case))
+        f.write("cp ../symmetries/tetrahedra_%i .\n" % (self.nkTetra))
         f.write("cp ../symmetries/Symmetries.Cartesian_%i Symmetries.Cartesian\n" % (self.nkTetra))
         f.write("cp ../eigen_%s .\n" % (self.case))
         f.write("cp ../pmn_%s .\n" % (self.case))
