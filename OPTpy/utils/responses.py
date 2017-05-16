@@ -35,6 +35,7 @@ class RESPONSESflow(Workflow):
              e.g. ["xx","yy","zz"],
         vnlkss=False : Take into accoung Vnl and KSS file (not working yet)
         option: 1 Full #Change name
+        prefix : prefix for files in this calculation
         smearvalue : Smearing value in eV 
         response : Response to calculate:
         ---------  choose a response ---------
@@ -55,6 +56,7 @@ class RESPONSESflow(Workflow):
         self.nkTetra = kwargs['nkTetra']
         self.ecut = kwargs['ecut']
         self.nspinor= kwargs['nspinor']
+        self.prefix = kwargs['prefix']
         self.scissors = kwargs.pop('scissors',0.000)
         self.tol = kwargs.pop('tol',0.03)
         self.acellz = kwargs.pop('acellz',1.000)
@@ -141,6 +143,20 @@ class RESPONSESflow(Workflow):
         f.write("cp ../symmetries/Symmetries.Cartesian_%i Symmetries.Cartesian\n" % (self.nkTetra))
         f.write("cp ../eigen_%s .\n" % (self.case))
         f.write("cp ../pmn_%s .\n" % (self.case))
+        f.write("#Executable\n set_input_all tmp_%s spectra.params_%s\n" % (self.case,self.case))
+#       Integrate each response at a time:
+        f.write("#Integrate each component at a time:\n")
+        for component in self.components:
+            f.write("Component %s\n" % (component)) 
+            f.write("sed s/Integrand_%s/%s.%s.dat_%s/ tmp_%s >tmp1_%s\n"
+            % (self.case,self.prefix,component,self.case,self.case,self.case))
+            f.write("sed s/Spectrum_%s/%s.%s.spectrum_ab_%s/ tmp1_%s > int_%s_%s\n"
+            % (self.case,self.prefix,component,self.case,self.case,component,self.case))
+            f.write("#Executable\ntetra_method_all int_%s_%s\n\n" 
+            % (component,self.case))
+            f.write("rm -f tmp*\n")
+
+ 
         f.close()
 
     def write_spectra_params(self):
@@ -195,4 +211,5 @@ class RESPONSESflow(Workflow):
         self.write_latm_input()
         self.write_run()
         self.write_spectra_params()
+
 
