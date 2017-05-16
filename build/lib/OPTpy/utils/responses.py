@@ -98,7 +98,7 @@ class RESPONSESflow(Workflow):
         pmn_data_filename= "pmn_"+self.case
         rmn_data_filename= "rmn.d_"+self.case
         der_data_filename= "der.d_"+self.case
-        tet_list_filename= "tetrahedra_"+self.case
+        tet_list_filename= "tetrahedra_"+str(self.nkTetra)
         integrand_filename= "Integrand_"+self.case
         spectrum_filename= "Spectrum_"+self.case
  
@@ -134,12 +134,12 @@ class RESPONSESflow(Workflow):
 
         f.close()
 
-    def write_run(self):
+    def write_run_file(self):
         """ Writes file run.sh """
 #       run.sh
         filename=RESPdir+"/run.sh"
         f=open(filename,"w")
-        f.write("cp ../symmetries/tetrahedra_%s .\n" % (self.case))
+        f.write("cp ../symmetries/tetrahedra_%i .\n" % (self.nkTetra))
         f.write("cp ../symmetries/Symmetries.Cartesian_%i Symmetries.Cartesian\n" % (self.nkTetra))
         f.write("cp ../eigen_%s .\n" % (self.case))
         f.write("cp ../pmn_%s .\n" % (self.case))
@@ -147,16 +147,26 @@ class RESPONSESflow(Workflow):
 #       Integrate each response at a time:
         f.write("#Integrate each component at a time:\n")
         for component in self.components:
-            f.write("Component %s\n" % (component)) 
+            f.write("#Component %s\n" % (component)) 
             f.write("sed s/Integrand_%s/%s.%s.dat_%s/ tmp_%s >tmp1_%s\n"
             % (self.case,self.prefix,component,self.case,self.case,self.case))
             f.write("sed s/Spectrum_%s/%s.%s.spectrum_ab_%s/ tmp1_%s > int_%s_%s\n"
             % (self.case,self.prefix,component,self.case,self.case,component,self.case))
             f.write("#Executable\ntetra_method_all int_%s_%s\n\n" 
             % (component,self.case))
-            f.write("rm -f tmp*\n")
 
  
+#        f.write("rm -f tmp*\n")
+        f.close()
+
+    def write_opt_file(self):
+        """ Writes file opt.dat required by Tiniba
+           option=1 from all valence bands Nv to 1...Nc conduction bands
+           option=2 from a given valence band  to a given conduction band"""
+
+        filename=RESPdir+"/opt.dat"
+        f = open(filename,"w")
+        f.write("%s %s %s\n" % (self.option,self.nval,self.ncond))
         f.close()
 
     def write_spectra_params(self):
@@ -209,7 +219,8 @@ class RESPONSESflow(Workflow):
     def write(self):
         """ Compute optical responses using Tiniba executables"""
         self.write_latm_input()
-        self.write_run()
+        self.write_run_file()
         self.write_spectra_params()
+        self.write_opt_file()
 
 
