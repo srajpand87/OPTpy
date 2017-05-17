@@ -1,5 +1,5 @@
 
-A python module to operate Tiniba (Under construction).
+A python module to operate <a href="https://github.com/bemese/tiniba">Tiniba</a>.
 
 
 Documentation
