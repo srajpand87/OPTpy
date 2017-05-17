@@ -18,8 +18,9 @@ class KKflow(Workflow):
         """
         super(KKflow, self).__init__(**kwargs)
         self.structure = kwargs['structure']
-        self.case = kwargs['case']
-        self.grid_response = kwargs['grid_response']
+        self.prefix = kwargs['prefix']
+        self.kgrid_response = kwargs['kgrid_response']
+        self.dirname = kwargs.pop('dirname','KK')
 
     def write(self):
         """ Makes KK directory.
@@ -70,7 +71,7 @@ class KKflow(Workflow):
 #       KK directory:
         #dirname=path.dirname(path.abspath(__file__))
         dirname=path.realpath(curdir)
-        newdir="KK"
+        newdir=self.dirname
         KKdir=path.join(dirname,newdir)
         if not path.exists(KKdir):
             mkdir(KKdir)
@@ -79,7 +80,7 @@ class KKflow(Workflow):
         f=open(filename,"w")
         f.write("#!/bin/bash\n\n")
         f.write("IBZ=ibz\n")
-        f.write("CASE="+self.case+"\n\n")
+        f.write("CASE="+self.prefix+"\n\n")
         f.write("#Copy files\n")
 	f.write("cp ../symmetries/pvectors .\n")
 	f.write("cp ../symmetries/sym.d .\n\n")
@@ -97,7 +98,7 @@ class KKflow(Workflow):
 #       Write KK/grid file
         filename=KKdir+"/grid"
         f=open(filename,"w")
-        f.write(" ".join(map(str, self.grid_response[:]))+"\n")
+        f.write(" ".join(map(str, self.kgrid_response[:]))+"\n")
         f.close()
 #       PENDING: need to get rid of this file:
 #       Write KK/fort.83

@@ -1,7 +1,7 @@
-from OPTpy import RESPONSESflow
+from OPTpy import RESPONSEflow
 
-flow = RESPONSESflow(
-   case="gaas",
+flow = RESPONSEflow(
+   prefix="gaas",
    lt="total",
 #  Total number of bands in the NSCF calculation:
    nband=18,

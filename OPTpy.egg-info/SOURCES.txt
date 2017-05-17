@@ -50,6 +50,8 @@ OPTpy/core/workflow.py
 OPTpy/core/writable.py
 OPTpy/external/__init__.py
 OPTpy/external/xmltodict.py
+OPTpy/flows/__init__.py
+OPTpy/flows/optflow.py
 OPTpy/io/__init__.py
 OPTpy/io/abinitinput.py
 OPTpy/io/sorting.py
@@ -58,7 +60,7 @@ OPTpy/io/variable.py
 OPTpy/utils/__init__.py
 OPTpy/utils/formatting.py
 OPTpy/utils/kk.py
-OPTpy/utils/responses.py
+OPTpy/utils/response.py
 OPTpy/utils/rpmns.py
 OPTpy/utils/units.py
 OPTpy/utils/various.py

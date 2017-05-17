@@ -1,10 +1,8 @@
 from os import path, mkdir,curdir
 from ..core import Workflow 
 
-__all__ = ['RESPONSESflow']
+__all__ = ['RESPONSEflow']
 
-#   Global variables for this class:
-RESPdir="RESP"
 #       Response name
 #       1  chi1----linear response           24 calChi1-layer linear response     
 #       3  eta2----bulk injection current    25 calEta2-layer injection current   
@@ -13,7 +11,7 @@ RESPdir="RESP"
 #       42 shg1V---Velocity gauge-1w&2w      43 shg2V---Velocity gauge-2w         
 #       44 shg1C---Layer-Length gauge-1w&2w  45 shg2C---Layer-Length gauge-2w     
 #       26 ndotccp-layer carrier injection   27 ndotvv--carrier injection 
-responses_dict={
+response_dict={
     1  : 'chi1'  , 24 : 'calChi1-layer',
     3  : 'eta2'  , 25 : 'calEta2-layer', 
     41 : 'zeta'  , 29 : 'calZeta-layer' , 
@@ -22,9 +20,9 @@ responses_dict={
     42 : 'shg1V' , 43 : 'shg2V',
     44 : 'shg1C' , 45 : 'shg2C' 
 }
-components_dict={ 'x' : 1, 'y' : 2, 'z' : 3 }
+component_dict={ 'x' : 1, 'y' : 2, 'z' : 3 }
 
-class RESPONSESflow(Workflow):
+class RESPONSEflow(Workflow):
     def __init__(self,**kwargs):
         """ 
         keyword arguments:
@@ -38,17 +36,18 @@ class RESPONSESflow(Workflow):
         tol: Smearning used in Fermi Golden's rule 
              (Delta function of vc energy difference)
              Default = 0.03 eV
-        nspinor : Number of spinorial components
+        nspinor : Number of spinorial component
         ecut : Kinetic energy cutoff
         acellz : Dimension (in Bohrs) of unit cell along the z direction
                  Used in layer calculations
+        dirname : Directory name to run Tiniba
         energy_min : Energy minimimum (in eV) in energy grid for responses
                      Default 0
         energy_max : Energy maximum (in eV) in energy grid for responses
                      Default 10 eV
         energy_steps : Number of points in energy grid for responses
                        Default 2001
-        lt : total | layer
+        lt : total | layer, default (total)
         components : Tensor components to be calculated, 
              e.g. ["xx","yy","zz"],
         vnlkss=False : Take into accoung Vnl and KSS file (not working yet)
@@ -65,8 +64,8 @@ class RESPONSESflow(Workflow):
         44 shg1C---Layer-Length gauge-1w&2w  45 shg2C---Layer-Length gauge-2w     
         26 ndotccp-layer carrier injection   27 ndotvv--carrier injection   
         """
-        super(RESPONSESflow, self).__init__(**kwargs)
-        self.lt = kwargs['lt']
+        super(RESPONSEflow, self).__init__(**kwargs)
+        self.dirname = kwargs.pop('dirname','RESP')
         self.nval = kwargs['nval']
         self.nval_total = kwargs['nval_total']
         self.ncond = kwargs['ncond']
@@ -75,17 +74,19 @@ class RESPONSESflow(Workflow):
         self.ecut = kwargs['ecut']
         self.nspinor= kwargs['nspinor']
         self.prefix = kwargs['prefix']
+        self.components = kwargs['components']
+        self.response = kwargs['response']
+#       Optional arguments:
+        self.lt = kwargs.pop('lt','total')
         self.scissors = kwargs.pop('scissors',0.000)
         self.tol = kwargs.pop('tol',0.03)
         self.acellz = kwargs.pop('acellz',1.000)
         self.energy_min = kwargs.pop('energy_min',0)
         self.energy_max = kwargs.pop('energy_max',10)
         self.energy_steps = kwargs.pop('energy_steps',2001)
-        self.components = kwargs['components']
-        self.vnlkss = kwargs['vnlkss']
-        self.option = kwargs['option']
-        self.smearvalue = kwargs['smearvalue']
-        self.response = kwargs['response']
+        self.vnlkss = kwargs.pop('vnlkss','False')
+        self.option = kwargs.pop('option',1)
+        self.smearvalue = kwargs.pop('smearvalue',0.15)
 
 
     def write_latm_input(self):
@@ -93,8 +94,8 @@ class RESPONSESflow(Workflow):
         from os import path, mkdir,curdir
 
 #       Create RESP dir.:
-        if not path.exists(RESPdir):
-            mkdir(RESPdir)
+        if not path.exists(self.dirname):
+            mkdir(self.dirname)
 
 
 #       Get case name:
@@ -103,7 +104,7 @@ class RESPONSESflow(Workflow):
             self.case = self.case+"-spin"
 
 #       Get variables from input variables:
-        components_list=' '.join(str(p) for p in self.components)
+        component_list=' '.join(str(p) for p in self.components)
         ncond_total=self.nband-self.nval_total
         withSO=".False."
         if ( self.nspinor == 2 ):
@@ -121,9 +122,9 @@ class RESPONSESflow(Workflow):
         spectrum_filename= "Spectrum_"+self.case
  
 #       1. write tmp_$case file:
-        filename=RESPdir+"/tmp_"+self.case
+        filename=self.dirname+"/tmp_"+self.case
         f=open(filename,"w")
-#            % (self.lt,case,self.scissors,self.option,self.nval,self.nval_total,self.ncond,ncond_total,self.response,components_list,self.smearvalue,str(self.vnlkss)))
+#            % (self.lt,case,self.scissors,self.option,self.nval,self.nval_total,self.ncond,ncond_total,self.response,component_list,self.smearvalue,str(self.vnlkss)))
         f.write("&INDATA\n")
         f.write("nVal = %i,\n" % (self.nval))
         f.write("nMax = %i,\n" % (self.nband))
@@ -155,7 +156,7 @@ class RESPONSESflow(Workflow):
     def write_run_file(self):
         """ Writes file run.sh """
 #       run.sh
-        filename=RESPdir+"/run.sh"
+        filename=self.dirname+"/run.sh"
         f=open(filename,"w")
         f.write("cp ../symmetries/tetrahedra_%i .\n" % (self.nkTetra))
         f.write("cp ../symmetries/Symmetries.Cartesian_%i Symmetries.Cartesian\n" % (self.nkTetra))
@@ -163,7 +164,7 @@ class RESPONSESflow(Workflow):
         f.write("cp ../pmn_%s .\n" % (self.case))
         f.write("#Executable\n set_input_all tmp_%s spectra.params_%s\n" % (self.case,self.case))
 #       Integrate each response at a time:
-        resp_name=responses_dict[self.response]
+        resp_name=response_dict[self.response]
         f.write("#Integrate each component at a time:\n")
         for component in self.components:
             f.write("#Component %s\n" % (component)) 
@@ -183,7 +184,7 @@ class RESPONSESflow(Workflow):
            option=1 from all valence bands Nv to 1...Nc conduction bands
            option=2 from a given valence band  to a given conduction band"""
 
-        filename=RESPdir+"/opt.dat"
+        filename=self.dirname+"/opt.dat"
         f = open(filename,"w")
         f.write("%s %s %s\n" % (self.option,self.nval,self.ncond))
         f.close()
@@ -194,18 +195,18 @@ class RESPONSESflow(Workflow):
         from numpy import int as np_int
 
 #       Get variables from input variables:
-        n_components=len(self.components)
-        resp_name=responses_dict[self.response]
+        n_component=len(self.components)
+        resp_name=response_dict[self.response]
 #       spectra.params file:
-        filename=RESPdir+"/spectra.params_"+self.case
+        filename=self.dirname+"/spectra.params_"+self.case
         f=open(filename,"w")
-        f.write("%i\n" % (n_components))
-        for ii in range(n_components):
-#           Map components 'xyz' to digits '123'
+        f.write("%i\n" % (n_component))
+        for ii in range(n_component):
+#           Map component 'xyz' to digits '123'
             cc=list(self.components[ii])
             cci=np_empty(shape=(len(cc)),dtype=np_int)
             for jj in range(len(cc)):
-                cci[jj]=components_dict[cc[jj]]
+                cci[jj]=component_dict[cc[jj]]
 #
             resp_filename=resp_name+"."+self.components[ii]+".dat_"+self.case
             file_num=501+ii

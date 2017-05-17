@@ -7,25 +7,27 @@ class RPMNSflow(Workflow):
     def __init__(self,**kwargs):
         """ 
         keyword arguments:
-        nval : Number of valence bands
+        nval_total : Number of valence bands
         ecut : Kinetic energy cutoff
         nspinor=1 : Number of spinorial components
         nkTetra=5 : Number of k-points for Tetrahedral integration
+        wfn_fname : Name of wavefunction file (Abinit WFK file)
         """
         super(RPMNSflow, self).__init__(**kwargs)
-        self.nval = kwargs['nval']
+        self.nval_total = kwargs['nval_total']
         self.nkTetra = kwargs['nkTetra']
         self.ecut = kwargs['ecut']
-        self.nspinor= kwargs['nspinor']
+        self.nspinor = kwargs['nspinor']
+        self.dirname = kwargs.pop('dirname','RPMNS')
+        self.wfn_fname = kwargs.pop('wfn_fname','../WFN/out_data/odat_WFK')
 
     def write(self):
         """ Makes RPMNS directory.
     	This runs the RPMNS Tiniba executable"""
 
 #       RPMNS directory:
-        dirname=path.realpath(curdir)
-        newdir="RPMNS"
-        RPMNSdir=path.join(dirname,newdir)
+        main_dir=path.realpath(curdir)
+        RPMNSdir=path.join(main_dir,self.dirname)
         if not path.exists(RPMNSdir):
             mkdir(RPMNSdir)
 
@@ -33,10 +35,10 @@ class RPMNSflow(Workflow):
         filename=RPMNSdir+"/run.sh"
         f=open(filename,"w")
         f.write("#!/bin/bash\n\n")
-        f.write("Nval=%d\n" % (self.nval))
+        f.write("Nval=%d\n" % (self.nval_total))
         f.write("echo $Nval >.fnval\n")
         f.write("WFK=WFK\n")
-        f.write("ln -nfs ../WFN/out_data/odat_WFK WFK\n")
+        f.write("ln -nfs %s WFK\n" % (self.wfn_fname))
         f.write("rho='.false.'\n")
         f.write("em='.true.'\n")
         f.write("pmn='.true.'\n")

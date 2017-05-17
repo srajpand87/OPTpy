@@ -12,10 +12,9 @@ task = AbinitWfnTask(
     pseudo_dir = '../data/pseudos',
     pseudos = ['31-Ga.pspnc', '33-As.pspnc'],
 
-#    ngkpt = [2,2,2],      # k-points grid
-#    kshift = [0,0,0],  # k-points shift
-#   Give k-points by hand, this are to be read from KK:
-    kpt = [[0,0,0],[0.5,0.5,0.5]],
+#   k-points are read from KK output:
+    nkTetra=5,
+    nband=18,
     ecut = 5.0,           # Wavefunctions cutoff energy
 
     # These are the default parameters for the MPI runner.

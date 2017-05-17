@@ -71,7 +71,7 @@ class AbinitScfTask(AbinitTask):
         """Return a dict of variables required for an SCF calculation."""
         variables = dict(
             prtden = 1,
-#            prtvxc = 1,
+            prtwf  = 0,
             tolvrs = kwargs.get('tolvrs', 1e-10),
             ecut = kwargs.get('ecut'),
             )
