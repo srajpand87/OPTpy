@@ -13,8 +13,8 @@ task = AbinitWfnTask(
     pseudos = ['31-Ga.pspnc', '33-As.pspnc'],
 
 #   k-points are read from KK output:
-    nkTetra=5,
-    nband=18,
+    nkTetra=5,            # k-points for tetrahedra integration
+    nband=18,             # Number of bands for responses
     ecut = 5.0,           # Wavefunctions cutoff energy
 
     # These are the default parameters for the MPI runner.

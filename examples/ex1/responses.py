@@ -2,15 +2,14 @@ from OPTpy import RESPONSEflow
 
 flow = RESPONSEflow(
    prefix="gaas",
-   lt="total",
 #  Total number of bands in the NSCF calculation:
    nband=18,
 #  Total number fo valence bands:
-   nval_total=8,
+   nval_total=4,
 #  Number of valence and conduction bands to compute the response:
 #  These could be less than the total number of bands.
-   ncond=8,
-   nval=8,
+   ncond=14,
+   nval=4,
 #  Number of k-points in the tetrahedra file: 
    nkTetra=5,
 #  Number of spinorial components:
@@ -20,9 +19,8 @@ flow = RESPONSEflow(
 #  Response to calculate, see Doc. in responses.py
    response=1,
    components=["xx","yy","zz"],
-   vnlkss=False,
-   option=1, #Full
-   smearvalue=0.15,
+#  Smearing value in eV
+   smearvalue=0.15,  
 )
 flow.write()
 
