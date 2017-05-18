@@ -43,6 +43,8 @@ class AbinitScfTask(AbinitTask):
             as a fraction of the smallest division along that direction.
         qshift : list(3), float, optional
             Absolute shift of the k-points grid along each direction.
+        nspinor : number of spinorial components, int, optional
+            Default 1
         input_variables : dict
             Any other input variables for the Abinit input file.
 
@@ -74,6 +76,7 @@ class AbinitScfTask(AbinitTask):
             prtwf  = 0,
             tolvrs = kwargs.get('tolvrs', 1e-10),
             ecut = kwargs.get('ecut'),
+            nspinor = kwargs.pop('nspinor',1),
             )
         return variables
 

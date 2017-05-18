@@ -51,6 +51,8 @@ class AbinitWfnTask(AbinitTask):
             to restart from there.
         input_variables : dict
             Any other input variables for the Abinit input file.
+        nspinor : Number of spinorial components, int, optional
+            Default 1
 
         See also:
 
@@ -115,10 +117,10 @@ class AbinitWfnTask(AbinitTask):
             tolwfr = kwargs.get('tolwfr', 1e-16),
             iscf = kwargs.get('iscf', -3),
             istwfk = kwargs.get('istwfk', '*1'),
-#            kpt = kwargs.get('kpt',[0,0,0]),
             kpt = kpt,
             kptopt = 0,
             nkpt = nkTetra,
+            nspinor = kwargs.pop('nspinor', 1),
             )
         return variables
 
