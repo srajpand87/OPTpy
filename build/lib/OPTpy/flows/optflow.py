@@ -2,8 +2,8 @@
 from __future__ import print_function
 
 from os.path import join as pjoin
-from os.path import dirname
-from os import getcwd
+#from os.path import dirname
+#from os import getcwd
 
 from ..external import Structure
 from ..core import Workflow
@@ -60,8 +60,8 @@ class OPTflow(Workflow):
 
 
 #       Get current path:
-        self.cwd=dirname(getcwd())
-        print(self.cwd)
+#        self.cwd=dirname(getcwd())
+
         # ==== KK task ==== #
         self.make_kk_task(**kwargs)
 
@@ -145,7 +145,7 @@ class OPTflow(Workflow):
         self.add_task(self.wfntask)
 
         kwargs.update(
-            wfn_fname = pjoin(self.cwd,self.wfntask.wfn_fname)) 
+            wfn_fname = pjoin('../',self.wfntask.wfn_fname)) 
 
-        fnames = dict(wfn_fname = pjoin(self.cwd,self.wfntask.wfn_fname))
+        fnames = dict(wfn_fname = pjoin('../',self.wfntask.wfn_fname))
         return fnames
