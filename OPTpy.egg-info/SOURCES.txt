@@ -15,6 +15,7 @@ Examples/data/structures/write-GaAs-structure.py
 Examples/data/structures/write-Si-structure.py
 Examples/ex1/checksyms.py
 Examples/ex1/kk.py
+Examples/ex1/optflow.py
 Examples/ex1/responses.py
 Examples/ex1/rpmns.py
 Examples/ex1/scf.py

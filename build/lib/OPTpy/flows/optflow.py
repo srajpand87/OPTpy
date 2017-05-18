@@ -2,6 +2,8 @@
 from __future__ import print_function
 
 from os.path import join as pjoin
+from os.path import dirname
+from os import getcwd
 
 from ..external import Structure
 from ..core import Workflow
@@ -56,6 +58,10 @@ class OPTflow(Workflow):
         self.ngkpt = kwargs.pop('ngkpt',[1,1,1])
         self.kshift = kwargs.pop('kshift', [.0,.0,.0])
 
+
+#       Get current path:
+        self.cwd=dirname(getcwd())
+        print(self.cwd)
         # ==== KK task ==== #
         self.make_kk_task(**kwargs)
 
@@ -139,8 +145,7 @@ class OPTflow(Workflow):
         self.add_task(self.wfntask)
 
         kwargs.update(
-            wfn_fname = self.wfntask.wfn_fname) 
+            wfn_fname = pjoin(self.cwd,self.wfntask.wfn_fname)) 
 
-        fnames = dict(wfn_fname = self.wfntask.wfn_fname)
-#                      rho_fname = self.wfntask.rho_fname)
+        fnames = dict(wfn_fname = pjoin(self.cwd,self.wfntask.wfn_fname))
         return fnames
