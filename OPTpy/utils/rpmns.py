@@ -52,10 +52,10 @@ class RPMNSflow(Workflow):
         postfix=""
         if ( self.nspinor == 2 ):
             postfix="-spin"
-        f.write("cp eigen.d ../eigen_%s_%s %s\n" 
+        f.write("cp eigen.d ../eigen_%s_%s%s\n" 
             %(str(self.nkTetra),str(int(self.ecut)),postfix))
-        f.write("cp pmnhalf.d ../pmn_%s_%s %s\n" 
+        f.write("cp pmnhalf.d ../pmn_%s_%s%s\n" 
             %(str(self.nkTetra),str(int(self.ecut)),postfix))
-        f.write("cp pnn.d ../pnn_%s_%s %s\n" 
+        f.write("cp pnn.d ../pnn_%s_%s%s\n" 
             %(str(self.nkTetra),str(int(self.ecut)),postfix))
         f.close()
