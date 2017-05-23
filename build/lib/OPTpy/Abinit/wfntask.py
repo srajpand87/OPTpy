@@ -1,8 +1,5 @@
 from __future__ import print_function
 import os
-from numpy import fromfile as np_fromfile
-from numpy import reshape as np_reshape
-from numpy import ndarray as ndarray
 from numpy import dot,round
 from .abinittask import AbinitTask
 
@@ -44,8 +41,6 @@ class AbinitWfnTask(AbinitTask):
             Prefix used as a rootname for abinit calculations.
         structure : pymatgen.Structure
             Structure object containing information on the unit cell.
-        kpt : list(nkpt,3), float, optional
-            List of k-points in reciprocal-lattice coordinates.
         input_wavefunction_fname: str, optional
             Name of previously compute wavefunction file, in case you want
             to restart from there.
@@ -60,6 +55,18 @@ class AbinitWfnTask(AbinitTask):
 
         kwargs.setdefault('prefix', 'wfn')
 
+        self.prefix=kwargs['prefix']
+        self.kgrid_response=kwargs['kgrid_response']
+        self.kgrid="{}x{}x{}".format(self.kgrid_response[0],self.kgrid_response[1],self.kgrid_response[2])
+
+#       Extra lines for run script:
+        self.runlines="#k-points read from kpt.in file:\n\
+echo kptopt 0 > kpt.in\n\
+echo nkpt >>kpt.in\n\
+cat ../{0}.klist_{1} | wc -l >> kpt.in\n\
+echo kpt >>kpt.in\n\
+cat ../{0}.klist_{1} >>kpt.in\n".format(self.prefix,self.kgrid)
+
         super(AbinitWfnTask, self).__init__(dirname, **kwargs)
 
         self.charge_density_fname = kwargs['charge_density_fname']
@@ -68,6 +75,8 @@ class AbinitWfnTask(AbinitTask):
             self.input_wavefunction_fname = kwargs['input_wavefunction_fname']
 
         self.input.set_variables(self.get_wfn_variables(**kwargs))
+
+        
 
     def get_wfn_variables(self, **kwargs):
         """Return a dict of variables required for an SCF calculation."""
@@ -85,28 +94,6 @@ class AbinitWfnTask(AbinitTask):
                 # Maybe warn the user that ecut is in Hartree?
                 pass
 
-#       Read k-points from file:
-        nkTetra = kwargs['nkTetra']
-        kpt_filename="symmetries/"+self.prefix+".kcartesian_"+str(nkTetra)
-        kcartesian=np_fromfile(kpt_filename,sep= ' ')
-#       Get reciprocal lattice vectors:
-#       Pymatgen. lattice. reciprocal_lattice(self)
-#       Get inverse matrix, to then convert to recp.
-#       Note that cartesian coordinates are in angstrom:
-        bohr2ang=0.529177249
-        reciprocal_lattice=self.structure.lattice.reciprocal_lattice
-        invM = reciprocal_lattice.inv_matrix/bohr2ang
-#       Check k-points in file are OK
-        nk=kcartesian.size/3
-        if ( nk != nkTetra ):
-            print("%i k-points found in file %s.\nExpecting %i \n" % (nk,nkTetra))
-            exit(1)
-        kcartesian=np_reshape(kcartesian,(nk,3))
-        kpt=ndarray(shape=(nkTetra,3),dtype=float) 
-        for ik in range(nkTetra):
-             kk=kcartesian[ik][:]
-             kred=dot(kk, invM)
-             kpt[ik][:]=round(kred,6)
 
         variables = dict(
             ecut = ecut,
@@ -117,9 +104,7 @@ class AbinitWfnTask(AbinitTask):
             tolwfr = kwargs.get('tolwfr', 1e-16),
             iscf = kwargs.get('iscf', -3),
             istwfk = kwargs.get('istwfk', '*1'),
-            kpt = kpt,
-            kptopt = 0,
-            nkpt = nkTetra,
+            include = "\"kpt.in\"",
             nspinor = kwargs.pop('nspinor', 1),
             )
         return variables
@@ -159,4 +144,31 @@ class AbinitWfnTask(AbinitTask):
         return self.get_odat('VXC')
 
     vxc_fname = exchange_correlation_potential_fname
+
+    def kpts_from_file(self,**kwargs):
+        from numpy import reshape as np_reshape
+        from numpy import fromfile as np_fromfile
+        from numpy import ndarray as ndarray
+#       Read k-points from file (obsolete):
+        nkTetra = kwargs['nkTetra']
+        kpt_filename="symmetries/"+self.prefix+".kcartesian_"+str(nkTetra)
+        kcartesian=np_fromfile(kpt_filename,sep= ' ')
+#       Get reciprocal lattice vectors:
+#       Pymatgen. lattice. reciprocal_lattice(self)
+#       Get inverse matrix, to then convert to recp.
+#       Note that cartesian coordinates are in angstrom:
+        bohr2ang=0.529177249
+        reciprocal_lattice=self.structure.lattice.reciprocal_lattice
+        invM = reciprocal_lattice.inv_matrix/bohr2ang
+#       Check k-points in file are OK
+        nk=kcartesian.size/3
+        if ( nk != nkTetra ):
+            print("%i k-points found in file %s.\nExpecting %i \n" % (nk,nkTetra))
+            exit(1)
+        kcartesian=np_reshape(kcartesian,(nk,3))
+        kpt=ndarray(shape=(nkTetra,3),dtype=float) 
+        for ik in range(nkTetra):
+             kk=kcartesian[ik][:]
+             kred=dot(kk, invM)
+             kpt[ik][:]=round(kred,6)
 

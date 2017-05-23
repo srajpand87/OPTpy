@@ -26,11 +26,11 @@ class RESPONSEflow(Workflow):
     def __init__(self,**kwargs):
         """ 
         keyword arguments:
+        kgrid_response : k-points for tetrahedra integration
         nval : Number of valence bands to compute the response
         nval_total : Total number of valence bands in the NSCF calculation
         nband : Total number of bands in the NSCF calculation
         ncond : Number of conduction bands to calculate the response
-        nkTetra : Number of k-points for tetrahedra integration
         scissors=0 : Value of scissors shift (eV) (not working yet)
                      Default = 0.0 eV
         tol: Smearning used in Fermi Golden's rule 
@@ -70,7 +70,8 @@ class RESPONSEflow(Workflow):
         self.nval_total = kwargs['nval_total']
         self.ncond = kwargs['ncond']
         self.nband = kwargs['nband']
-        self.nkTetra = kwargs['nkTetra']
+        self.kgrid_response = kwargs['kgrid_response']
+        self.kgrid="{}x{}x{}".format(self.kgrid_response[0],self.kgrid_response[1],self.kgrid_response[2])
         self.ecut = kwargs['ecut']
         self.nspinor= kwargs['nspinor']
         self.prefix = kwargs['prefix']
@@ -99,9 +100,14 @@ class RESPONSEflow(Workflow):
 
 
 #       Get case name:
-        self.case=str(self.nkTetra)+"_"+str(int(self.ecut))
+        self.case=str(self.kgrid)+"_"+str(int(self.ecut))
         if ( self.nspinor > 1 ):
             self.case = self.case+"-spin"
+
+    
+#       Get number of k-points from file
+        kfile="../{}.klist_{}".format(self.prefix,self.kgrid)
+#        kMax=sum(1 for line in open(kfile))
 
 #       Get variables from input variables:
         component_list=' '.join(str(p) for p in self.components)
@@ -117,7 +123,7 @@ class RESPONSEflow(Workflow):
         pmn_data_filename= "pmn_"+self.case
         rmn_data_filename= "rmn.d_"+self.case
         der_data_filename= "der.d_"+self.case
-        tet_list_filename= "tetrahedra_"+str(self.nkTetra)
+        tet_list_filename= "tetrahedra_"+str(self.kgrid)
         integrand_filename= "Integrand_"+self.case
         spectrum_filename= "Spectrum_"+self.case
  
@@ -130,7 +136,8 @@ class RESPONSEflow(Workflow):
         f.write("nMax = %i,\n" % (self.nband))
         f.write("nVal_tetra = %i,\n" % (self.nval_total))
         f.write("nMax_tetra = %i,\n" % (self.ncond))
-        f.write("kMax = %i,\n" % (self.nkTetra))
+#        f.write("kMax = %i,\n" % (kMax))
+        f.write("kMax = XXX,\n")
         f.write("scissor = %f,\n" % (self.scissors))
         f.write("tol = %f,\n" % (self.tol))
         f.write("nSpinor = %i,\n" % (self.nspinor))
@@ -158,14 +165,19 @@ class RESPONSEflow(Workflow):
 #       run.sh
         filename=self.dirname+"/run.sh"
         f=open(filename,"w")
-        f.write("cp ../symmetries/tetrahedra_%i .\n" % (self.nkTetra))
-        f.write("cp ../symmetries/Symmetries.Cartesian_%i Symmetries.Cartesian\n" % (self.nkTetra))
-        f.write("cp ../eigen_%s .\n" % (self.case))
-        f.write("cp ../pmn_%s .\n" % (self.case))
-        f.write("#Executable\n set_input_all tmp_%s spectra.params_%s\n" % (self.case,self.case))
+        f.write("#Copy files:\n")
+        f.write("cp ../symmetries/tetrahedra_{} .\n".format(self.kgrid))
+        f.write("cp ../symmetries/Symmetries.Cartesian_{} Symmetries.Cartesian\n".format(self.kgrid))
+        f.write("cp ../eigen_{} .\n".format(self.case))
+        f.write("cp ../pmn_{} .\n".format(self.case))
+        f.write("\n#Find number of k-points and replace kMax value in files:\n")
+        f.write("nkpt=`cat ../{}.klist_{} | wc  -l`\n".format(self.prefix,self.kgrid)) 
+        f.write("sed s/XXX/$nkpt/tmp_{0} > tmp1_{0}\n".format(self.case))
+        f.write("mv tmp1_{0} tmp_{0}\n".format(self.case))
+        f.write("\n#Executable\nset_input_all tmp_{0} spectra.params_{0}\n".format(self.case))
 #       Integrate each response at a time:
         resp_name=response_dict[self.response]
-        f.write("#Integrate each component at a time:\n")
+        f.write("\n#Integrate each component at a time:\n")
         for component in self.components:
             f.write("#Component %s\n" % (component)) 
             f.write("sed s/Integrand_%s/%s.%s.dat_%s/ tmp_%s >tmp1_%s\n"

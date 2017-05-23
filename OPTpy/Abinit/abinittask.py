@@ -60,26 +60,13 @@ class AbinitTask(DFTTask, IOTask):
         self.input = AbinitInput(fname=self.prefix + '.in')
         self.input.set_structure(self.structure)
 
-#TODO: do this with pymatgen?
-#        # Handle k-points and symmetries
-#        ((kpt, wtk), (symrel, tnons)) = self.kgridtask.get_kpoints_and_sym()
-#        nsym = len(symrel)
-#        if not kwargs.get('symkpt', True):
-#            kpt, wtk = self.kgridtask.get_kpt_grid_nosym()
-
-#        # Transpose all symmetry matrices
-#        symrel = np.linalg.inv(symrel.reshape((-1,3,3)).transpose((0,2,1)))
-#        symrel = np.array(symrel, dtype=np.int)
-#
-#        # A 2pi factor is added to tnons by kgrid for phase factor calculations
-#        tnons = np.round(tnons / (2*np.pi),5)
-
-#        self.input.set_variables({'symrel':symrel, 'tnons':tnons, 'nsym':nsym})
-#        self.set_kpoints(kpt, wtk)
-
         self.input.set_variables(kwargs.get('input_variables', {}))
 
         self.runscript['ABINIT'] = kwargs.get('ABINIT', 'abinit')
+#       Add additional lines in run script:
+        if ( hasattr(self,'runlines' )) :
+            self.runscript.append(self.runlines)
+#
         self.runscript.append('$MPIRUN $ABINIT < {} &> {}'.format(
                               self.filesfile_basename, self.log_basename))
 

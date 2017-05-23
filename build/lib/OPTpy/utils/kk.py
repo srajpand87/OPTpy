@@ -19,8 +19,10 @@ class KKflow(Workflow):
         super(KKflow, self).__init__(**kwargs)
         self.structure = kwargs['structure']
         self.prefix = kwargs['prefix']
-        self.kgrid_response = kwargs['kgrid_response']
         self.dirname = kwargs.pop('dirname','KK')
+        self.kgrid_response = kwargs['kgrid_response']
+        self.kgrid="{}x{}x{}".format(self.kgrid_response[0],self.kgrid_response[1],self.kgrid_response[2])
+
 
     def write(self):
         """ Makes KK directory.
@@ -80,20 +82,20 @@ class KKflow(Workflow):
         f=open(filename,"w")
         f.write("#!/bin/bash\n\n")
         f.write("IBZ=ibz\n")
-        f.write("CASE="+self.prefix+"\n\n")
         f.write("#Copy files\n")
 	f.write("cp ../symmetries/pvectors .\n")
 	f.write("cp ../symmetries/sym.d .\n\n")
         f.write("#Executable\n")
         f.write("$IBZ -abinit -tetrahedra -cartesian -symmetries -reduced -mesh\n\n")
         f.write("#Rename output files:\n")
-	f.write("NKPT=`wc kpoints.reciprocal | awk '{print $1}'`\n\n")
-	f.write("mv kpoints.reciprocal ../$CASE.klist_$NKPT\n")
-   	f.write("mv kpoints.cartesian ../symmetries/$CASE.kcartesian_$NKPT\n")
-   	f.write("mv tetrahedra ../symmetries/tetrahedra_$NKPT\n")
-   	f.write("mv Symmetries.Cartesian ../symmetries/Symmetries.Cartesian_$NKPT\n")
-   	f.write("cd ..\n")
-   	f.write("rm -rf TMP/")
+
+#	f.write("NKPT=`wc kpoints.reciprocal | awk '{print $1}'`\n\n")
+	f.write("mv kpoints.reciprocal ../{}.klist_{}\n".format(self.prefix,self.kgrid))
+   	f.write("mv kpoints.cartesian ../symmetries/{}.kcartesian_{}\n".format(self.prefix,self.kgrid))
+   	f.write("mv tetrahedra ../symmetries/tetrahedra_{}\n".format(self.kgrid))
+   	f.write("mv Symmetries.Cartesian ../symmetries/Symmetries.Cartesian_{}\n".format(self.kgrid))
+#   	f.write("cd ..\n")
+#   	f.write("rm -rf TMP/")
         f.close()
 #       Write KK/grid file
         filename=KKdir+"/grid"
