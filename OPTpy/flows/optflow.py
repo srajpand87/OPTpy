@@ -1,10 +1,10 @@
 """Workflow to run an optical-response calculation."""
 from __future__ import print_function
 
-from os.path import join as pjoin
+#from os.path import join as pjoin
 #from os.path import dirname
 #from os import getcwd
-
+import os
 from ..external import Structure
 from ..core import Workflow
 from ..Abinit import AbinitScfTask, AbinitWfnTask
@@ -47,27 +47,33 @@ class OPTflow(Workflow):
             Directory in which pseudopotential files are found.
         pseudos : list, str
             Pseudopotential files.
+        split_by_node : logic, optional
+            Default = False
+            Split WFN/RPMS tasks by number of processors.
         structure : pymatgen.Structure
             Structure object containing information on the unit cell.
 
         """
+
+#       Initialize variables:
         super(OPTflow, self).__init__(**kwargs)
 
-        kwargs.pop('dirname', None)
+#       Current directory
+#        self.cwd=os.getcwd()
+#        self.cwd=os.path.dirname(os.getcwd())
 
+        kwargs.pop('dirname', None)
         self.ngkpt = kwargs.pop('ngkpt',[1,1,1])
         self.kshift = kwargs.pop('kshift', [.0,.0,.0])
-
-
-#       Get current path:
-#        self.cwd=dirname(getcwd())
+        self.split_by_node = kwargs.pop('split_by_node',False)
+        self.nproc = kwargs.pop('nproc',1)
 
         # ==== KK task ==== #
         self.make_kk_task(**kwargs)
 
         # ==== DFT calculations ==== #
-        fnames = self.make_dft_tasks_abinit(**kwargs)
-        kwargs.update(fnames)
+        wfn_fnames=self.make_dft_tasks_abinit(**kwargs)
+        kwargs.update(wfn_fname=wfn_fnames)
 
         # === RPMNS calculation === #
         self.make_rpmns_task(**kwargs)  
@@ -86,7 +92,7 @@ class OPTflow(Workflow):
         from ..utils import KKflow 
 
         self.kktask = KKflow(
-            dirname = pjoin(self.dirname, '00-KK'),
+            dirname = os.path.join(self.dirname, '00-KK'),
             **kwargs)
 
         self.add_task(self.kktask)
@@ -96,11 +102,22 @@ class OPTflow(Workflow):
         Compute momentum matrix elements. """
         from ..utils import RPMNSflow
 
-        self.rpmnstask = RPMNSflow(
-            dirname = pjoin(self.dirname, '03-RPMNS'),
-            **kwargs)
-
-        self.add_task(self.rpmnstask)
+        if ( self.split_by_node == False ):
+            self.rpmnstask = RPMNSflow(
+                dirname = os.path.join(self.dirname, '03-RPMNS'),
+                **kwargs)
+            self.add_task(self.rpmnstask)
+        else:
+            # Divide calculation by nodes:
+            for self.task in range(self.ntask):
+                dirname='03-RPMNS/'+str(self.task+1)
+                print(dirname)
+                self.rpmnstask = RPMNSflow(
+                    dirname = os.path.join(self.dirname, dirname),
+                    task=self.task+1,
+                    ntask=self.ntask,
+                    **kwargs)
+                self.add_task(self.rpmnstask)
 
     def make_response_task(self,**kwargs):
         """ Run response task.
@@ -108,7 +125,7 @@ class OPTflow(Workflow):
         from ..utils import RESPONSEflow
 
         self.responsetask = RESPONSEflow(
-            dirname = pjoin(self.dirname,'04-RESP'),
+            dirname = os.path.join(self.dirname,'04-RESP'),
             **kwargs)
 
         self.add_task(self.responsetask)
@@ -127,7 +144,7 @@ class OPTflow(Workflow):
 
         else:
             self.scftask = AbinitScfTask(
-                dirname = pjoin(self.dirname, '01-Density'),
+                dirname = os.path.join(self.dirname, '01-Density'),
                 ngkpt = self.ngkpt,
                 kshift = self.kshift,
                 **kwargs)
@@ -138,14 +155,36 @@ class OPTflow(Workflow):
                 charge_density_fname = self.scftask.charge_density_fname)
 
 #       WFN calculation
-        self.wfntask = AbinitWfnTask(
-            dirname = pjoin(self.dirname, '02-WFN'),
-            **kwargs)
+        wfn_fnames = [] 
+        if ( self.split_by_node == False ):
+            self.wfntask = AbinitWfnTask(
+                dirname = os.path.join(self.dirname, '02-WFN'),
+                **kwargs)
 
-        self.add_task(self.wfntask)
+            self.add_task(self.wfntask)
+            #wfn_fname=os.path.join('../',self.wfntask.wfn_fname)
+            wfn_fname=self.wfntask.wfn_fname
+            wfn_fnames.append(wfn_fname)
+
+            #fnames = dict(wfn_fname = os.path.join('../',self.wfntask.wfn_fname))
+            #return fnames
+        else : 
+            # Divide calculation by nodes:
+            self.ntask=self.nproc
+            # split tasks: 
+            for self.task in range(self.ntask):
+                dirname='02-WFN/'+str(self.task+1)
+                self.wfntask = AbinitWfnTask(
+                    dirname = os.path.join(self.dirname, dirname),
+                    task=self.task+1,
+                    ntask=self.ntask,
+                    **kwargs)
+
+                self.add_task(self.wfntask)
+#                wfn_fname=os.path.join('../',self.wfntask.wfn_fname)
+                wfn_fname=self.wfntask.wfn_fname
+                wfn_fnames.append(wfn_fname)
 
         kwargs.update(
-            wfn_fname = pjoin('../',self.wfntask.wfn_fname)) 
-
-        fnames = dict(wfn_fname = pjoin('../',self.wfntask.wfn_fname))
-        return fnames
+            wfn_fname=wfn_fnames ) 
+        return wfn_fnames        

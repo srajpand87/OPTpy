@@ -13,7 +13,7 @@ class AbinitWfnTask(AbinitTask):
     _input_fname = 'wfn.in'
     _output_fname = 'wfn.out'
 
-    def __init__(self, dirname, **kwargs):
+    def __init__(self, dirname,ntask=1,task=1, **kwargs):
         """
         Arguments
         ---------
@@ -21,7 +21,8 @@ class AbinitWfnTask(AbinitTask):
         dirname : str
             Directory in which the files are written and the code is executed.
             Will be created if needed.
-
+        task, ntask : used to split calculation in tasks (optional)
+            task is the task index and ntask is the total of tasks.
 
         Keyword Arguments
         -----------------
@@ -39,6 +40,9 @@ class AbinitWfnTask(AbinitTask):
             for the NSCF cycle.
         prefix : str
             Prefix used as a rootname for abinit calculations.
+        split_by_node : logic, optional
+            Default = False
+            Split WFN/RPMS tasks by number of processors.
         structure : pymatgen.Structure
             Structure object containing information on the unit cell.
         input_wavefunction_fname: str, optional
@@ -48,24 +52,20 @@ class AbinitWfnTask(AbinitTask):
             Any other input variables for the Abinit input file.
         nspinor : Number of spinorial components, int, optional
             Default 1
+      
 
         See also:
 
         """
 
         kwargs.setdefault('prefix', 'wfn')
-
         self.prefix=kwargs['prefix']
+
         self.kgrid_response=kwargs['kgrid_response']
         self.kgrid="{}x{}x{}".format(self.kgrid_response[0],self.kgrid_response[1],self.kgrid_response[2])
 
-#       Extra lines for run script:
-        self.runlines="#k-points read from kpt.in file:\n\
-echo kptopt 0 > kpt.in\n\
-echo nkpt >>kpt.in\n\
-cat ../{0}.klist_{1} | wc -l >> kpt.in\n\
-echo kpt >>kpt.in\n\
-cat ../{0}.klist_{1} >>kpt.in\n".format(self.prefix,self.kgrid)
+#       Make changes to run.sh to make a kpt.in file:
+        self.mk_kpt_in(ntask,task)
 
         super(AbinitWfnTask, self).__init__(dirname, **kwargs)
 
@@ -144,6 +144,51 @@ cat ../{0}.klist_{1} >>kpt.in\n".format(self.prefix,self.kgrid)
         return self.get_odat('VXC')
 
     vxc_fname = exchange_correlation_potential_fname
+
+    def mk_kpt_in(self,ntask,task):
+
+        # Get path of kpt file:
+        # To do: add relative path
+        cwd=os.getcwd()
+        kptfile='{0}.klist_{1}'.format(self.prefix,self.kgrid)
+
+        if ( ntask != 1 ):
+            # Extra lines for run.sh contained in self.runlines:
+            self.runlines="\
+ln -nfs {0}/{1}\n\
+#k-points read from kpt.in file:\n\
+#Basic algebra to get the k-points for this task:\n\
+ntask={2}\n\
+task={3}\n\
+nkpt=`cat {1} | wc -l`\n\
+nk_task=$(($nkpt/$ntask))\n\
+if [ $ntask -eq $task ]\n\
+then\n\
+   nk=$(($nk_task*$task))\n\
+   residual=$(($nkpt-$nk))\n\
+   me_nk=$(($nk_task+$residual))\n\
+else\n\
+   me_nk=$nk_task\n\
+fi\n\
+ik_start=$(($nk_task*($task-1)+1))\n\
+ik_end=$(($ik_start+$me_nk-1))\n\
+echo Doing kpoints $ik_start to $ik_end\n\n\
+#Write kpt.in file:\n\
+echo kptopt 0 > kpt.in\n\
+echo nkpt $me_nk >>kpt.in\n\
+echo kpt >>kpt.in\n\
+sed -n \" ${{ik_start}},${{ik_end}}p \" {1} >>kpt.in\n"\
+.format(cwd,kptfile,ntask,task)
+        else:
+            self.runlines=\
+"#k-points read from kpt.in file:\n\
+ln -nfs {0}/{1}\n\
+echo kptopt 0 > kpt.in\n\
+echo nkpt >>kpt.in\n\
+cat {1} | wc -l >> kpt.in\n\
+echo kpt >>kpt.in\n\
+cat {1} >>kpt.in\n".format(cwd,kptfile)
+        
 
     def kpts_from_file(self,**kwargs):
         from numpy import reshape as np_reshape
