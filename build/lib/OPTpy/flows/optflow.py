@@ -133,8 +133,10 @@ class OPTflow(Workflow):
                     dirname = os.path.join(self.dirname, dirname),
                     task=self.task+1,
                     ntask=self.ntask,
+                    rename=False,
                     **kwargs)
-                self.add_task(self.rpmnstask)
+                self.add_task(self.rpmnstask,background=True)
+            self.runscript.append("wait\n")
 
     def make_response_task(self,**kwargs):
         """ Run response task.

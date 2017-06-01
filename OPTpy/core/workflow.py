@@ -32,7 +32,7 @@ class Workflow(Task):
         if tasks is not None:
             self.tasks.extend(tasks)
 
-    def add_task(self, task, merge=False):
+    def add_task(self, task, background=False,merge=False):
         """
         Add a task to the workflow.
 
@@ -47,9 +47,12 @@ class Workflow(Task):
 
         merge (False):
             Merge the execution in a single runscript.
+        background (False):
+            Add a "&" to the execution line to run the process in background
 
         """
 
+        self.background=background 
         if merge:
             assert self.dirname == task.dirname, (
                     'Only tasks with the same dirname can be merged to a flow.')
@@ -75,7 +78,10 @@ class Workflow(Task):
                 self.runscript.extend(self.get_execution_lines(task))
 
             else:
-                self.runscript.append('bash {}'.format(task.runscript.fname))
+                if ( background==True ):
+                    self.runscript.append('bash {} &'.format(task.runscript.fname))
+                else:
+                    self.runscript.append('bash {}'.format(task.runscript.fname))
 
         self.tasks.append(task)
 
@@ -91,14 +97,19 @@ class Workflow(Task):
         # The user is expected to modify the runscript (e.g. to restart
         # the calculation and skip the first steps that completed normally).
         # Therefore, the syntax must remain as simple as possible...
+        if ( self.background ) :
+            background="&"
+        else:
+            background=""
         chunk = """
             cd {subdir}
-            bash {runscript}
+            bash {runscript} {background}
             cd {back}
             """.format(
                 subdir = os.path.relpath(task.dirname, self.dirname),
                 runscript = task.runscript.fname,
                 back = os.path.relpath(self.dirname, task.dirname, ),
+                background=background
                 )
 
         return [ l.strip() for l in chunk.strip().splitlines() ]
