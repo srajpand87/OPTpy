@@ -61,6 +61,7 @@ OPTpy/io/variable.py
 OPTpy/utils/__init__.py
 OPTpy/utils/formatting.py
 OPTpy/utils/kk.py
+OPTpy/utils/merge.py
 OPTpy/utils/response.py
 OPTpy/utils/rpmns.py
 OPTpy/utils/units.py

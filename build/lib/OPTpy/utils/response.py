@@ -165,17 +165,20 @@ class RESPONSEflow(Workflow):
 #       run.sh
         filename=self.dirname+"/run.sh"
         f=open(filename,"w")
+        #
         f.write("#Copy files:\n")
         f.write("cp ../symmetries/tetrahedra_{} .\n".format(self.kgrid))
         f.write("cp ../symmetries/Symmetries.Cartesian_{} Symmetries.Cartesian\n".format(self.kgrid))
         f.write("cp ../eigen_{} .\n".format(self.case))
         f.write("cp ../pmn_{} .\n".format(self.case))
+        #
         f.write("\n#Find number of k-points and replace kMax value in files:\n")
-        f.write("nkpt=`cat ../{}.klist_{} | wc  -l`\n".format(self.prefix,self.kgrid)) 
-        f.write("sed s/XXX/$nkpt/tmp_{0} > tmp1_{0}\n".format(self.case))
-        f.write("mv tmp1_{0} tmp_{0}\n".format(self.case))
-        f.write("\n#Executable\nset_input_all tmp_{0} spectra.params_{0}\n".format(self.case))
-#       Integrate each response at a time:
+        f.write("nkpt=`cat ../{0}.klist_{1} | wc  -l`\n".format(self.prefix,self.kgrid))
+        f.write("executable=`echo \"sed -i -e 's/XXX/$nkpt/g' tmp_{0}\"`\n".format(self.case))
+        f.write("eval $executable\n\n")
+        # 
+        f.write("#Executable\nset_input_all tmp_{0} spectra.params_{0}\n".format(self.case))
+        # Integrate each response at a time:
         resp_name=response_dict[self.response]
         f.write("\n#Integrate each component at a time:\n")
         for component in self.components:
@@ -186,7 +189,6 @@ class RESPONSEflow(Workflow):
             % (self.case,resp_name,component,self.case,self.case,component,self.case))
             f.write("#Executable\ntetra_method_all int_%s_%s\n\n" 
             % (component,self.case))
-
  
 #        f.write("rm -f tmp*\n")
         f.close()

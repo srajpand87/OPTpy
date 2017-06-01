@@ -78,6 +78,9 @@ class OPTflow(Workflow):
         # === RPMNS calculation === #
         self.make_rpmns_task(**kwargs)  
 
+        # === MERGE files === #
+        self.make_merge_task(**kwargs)  
+
         # === Optical response === #
         self.make_response_task(**kwargs) 
 
@@ -96,7 +99,21 @@ class OPTflow(Workflow):
             **kwargs)
 
         self.add_task(self.kktask)
-            
+           
+    def make_merge_task(self,**kwargs):
+        """ Run merge task: 
+        when calculation is split, it merges the output files """
+        from ..utils import MERGEflow
+
+        if ( self.split_by_node == True ):
+            dirname='03-RPMNS/'
+            self.mergetask = MERGEflow(
+                dirname = os.path.join(self.dirname, dirname),
+                ntask=self.ntask,
+                **kwargs)
+            self.add_task(self.mergetask)
+
+ 
     def make_rpmns_task(self,**kwargs):
         """ Run RPMNS task.
         Compute momentum matrix elements. """
