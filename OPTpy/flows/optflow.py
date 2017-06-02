@@ -126,6 +126,8 @@ class OPTflow(Workflow):
             self.add_task(self.rpmnstask)
         else:
             # Divide calculation by nodes:
+            # This part is not parallelized, so change this here:
+            kwargs.update(nproc=1,nproc_flag='-n',mpi_extra_vars='--cpu-bind=core')
             for self.task in range(self.ntask):
                 dirname='03-RPMNS/'+str(self.task+1)
                 print(dirname)

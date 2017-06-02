@@ -190,6 +190,7 @@ class MPITask(Task):
     _nproc_per_node_flag = default_mpi['nproc_per_node_flag']
     _nodes = default_mpi['nodes']
     _nodes_flag = default_mpi['nodes_flag']
+    _mpi_extra_vars = default_mpi['mpi_extra_vars']
 
     def __init__(self, *args, **kwargs):
         """
@@ -214,6 +215,8 @@ class MPITask(Task):
             Number of nodes.
         nodes_flag: str ('-n')
             Flag to specify the number of nodes to the mpi runner.
+        mpi_extra_vars : str ('')
+            Flag to specify other options to the mpi runner
 
         """
 
@@ -224,10 +227,11 @@ class MPITask(Task):
         self.nproc_per_node_flag = default_mpi['nproc_per_node_flag']
         self.nproc = default_mpi['nproc']
         self.nproc_per_node = default_mpi['nproc_per_node']
+        self.mpi_extra_vars = default_mpi['mpi_extra_vars']
 
         for key in ('mpirun', 'nproc', 'nproc_flag',
                     'nproc_per_node', 'nproc_per_node_flag',
-                    'nodes', 'nodes_flag'):
+                    'nodes', 'nodes_flag', 'mpi_extra_vars'):
                    
             if key in kwargs:
                 setattr(self, key, kwargs[key])
@@ -250,6 +254,9 @@ class MPITask(Task):
 
         if self.nodes_flag and self.nodes:
             variable += ' {} {}'.format(self.nodes_flag, self.nodes)
+
+        if self.mpi_extra_vars:
+            variable += ' {} '.format(self.mpi_extra_vars)
 
         return variable
 
@@ -318,6 +325,16 @@ class MPITask(Task):
     def nodes_flag(self, value):
         self._nodes_flag = value
         self._declare_mpirun()
+
+    @property
+    def mpi_extra_vars(self):
+        return self._mpi_extra_vars
+
+    @mpi_extra_vars.setter
+    def mpi_extra_vars(self, value):
+        self._mpi_extra_vars = value
+        self._declare_mpirun()
+
 
 # =========================================================================== #
 

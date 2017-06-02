@@ -10,6 +10,7 @@ default_mpi = dict(
     nproc_per_node_flag = None,
     nodes = 1,
     nodes_flag = None,
+    mpi_extra_vars = '',
     )
 
 default_runscript = dict(

@@ -1,9 +1,9 @@
 from os import path, mkdir,curdir
-from ..core import Workflow,Task 
+from ..core import Workflow,MPITask 
 
 __all__ = ['RPMNSflow']
 
-class RPMNSflow(Workflow,Task):
+class RPMNSflow(Workflow,MPITask):
     def __init__(self,ntask=1,task=1,rename=True,**kwargs):
         """ 
         Arguments
@@ -30,12 +30,12 @@ class RPMNSflow(Workflow,Task):
         self.nspinor = kwargs['nspinor']
         self.dirname = kwargs.pop('dirname','RPMNS')
         self.wfn_fname=kwargs['wfn_fname'][task-1]
-        self.mpirun=kwargs.pop('mpirun','mpirun')
+
 
         # --- Write run.sh file ---
         # Define variables
         self.runscript.variables={
-            'MPIRUN': "'{0} -n 1'".format(self.mpirun),
+            'MPIRUN' : self.mpirun_variable,
             'WFK':'WFK',
             'RHO':'.false.',
             'EM':'.true.',
@@ -54,7 +54,9 @@ class RPMNSflow(Workflow,Task):
         self.runscript.append("echo $NVAL >.fnval\n")
         # Executable
         self.runscript.append("#Executable")
-        self.runscript.append("$MPIRUN rpmns $WFK $RHO $EM $PMN $RHOMM $LPMN $LPMM $SCCP $lSCCP\n")
+        self.runscript.append("$MPIRUN rpmns $WFK $RHO $EM $PMN $RHOMM $LPMN $LPMM $SCCP $lSCCP")
+
+
 
         # Rename output files:
         if ( rename ):
