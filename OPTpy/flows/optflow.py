@@ -125,9 +125,8 @@ class OPTflow(Workflow):
                 **kwargs)
             self.add_task(self.rpmnstask)
         else:
-            # Divide calculation by nodes:
-            # This part is not parallelized, so change this here:
-            kwargs.update(nproc=1,nproc_flag='-n',mpi_extra_vars='--cpu-bind=core')
+            # Divide calculation by nproc:
+            kwargs.update(nproc=1)
             for self.task in range(self.ntask):
                 dirname='03-RPMNS/'+str(self.task+1)
                 self.rpmnstask = RPMNSflow(
@@ -189,11 +188,11 @@ class OPTflow(Workflow):
             #fnames = dict(wfn_fname = os.path.join('../',self.wfntask.wfn_fname))
             #return fnames
         else : 
-            # Divide calculation by nodes:
+            # Divide calculation by nproc:
             self.ntask=self.nproc
             # split tasks: 
             for self.task in range(self.ntask):
-                kwargs.update(nproc=1,nproc_flag='-n',mpi_extra_vars='--cpu-bind=core')
+                kwargs.update(nproc=1)
                 dirname='02-WFN/'+str(self.task+1)
                 self.wfntask = AbinitWfnTask(
                     dirname = os.path.join(self.dirname, dirname),
