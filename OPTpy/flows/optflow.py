@@ -130,7 +130,6 @@ class OPTflow(Workflow):
             kwargs.update(nproc=1,nproc_flag='-n',mpi_extra_vars='--cpu-bind=core')
             for self.task in range(self.ntask):
                 dirname='03-RPMNS/'+str(self.task+1)
-                print(dirname)
                 self.rpmnstask = RPMNSflow(
                     dirname = os.path.join(self.dirname, dirname),
                     task=self.task+1,
@@ -194,6 +193,7 @@ class OPTflow(Workflow):
             self.ntask=self.nproc
             # split tasks: 
             for self.task in range(self.ntask):
+                kwargs.update(nproc=1,nproc_flag='-n',mpi_extra_vars='--cpu-bind=core')
                 dirname='02-WFN/'+str(self.task+1)
                 self.wfntask = AbinitWfnTask(
                     dirname = os.path.join(self.dirname, dirname),
@@ -201,10 +201,10 @@ class OPTflow(Workflow):
                     ntask=self.ntask,
                     **kwargs)
 
-                self.add_task(self.wfntask)
-#                wfn_fname=os.path.join('../',self.wfntask.wfn_fname)
+                self.add_task(self.wfntask,background=True)
                 wfn_fname=self.wfntask.wfn_fname
                 wfn_fnames.append(wfn_fname)
+            self.runscript.append("wait\n")
 
         kwargs.update(
             wfn_fname=wfn_fnames ) 
