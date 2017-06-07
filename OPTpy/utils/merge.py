@@ -36,7 +36,7 @@ class MERGEflow(Workflow,Task):
         self.runscript.append("cat 1/eigen.d > tmp")
         for itask in range(1,ntask):
             self.runscript.append("cat {0}/eigen.d >> tmp".format(itask+1))
-        self.runscript.append("awk '{$1=""; print NR $0}' tmp > $eigenfile")
+        self.runscript.append("awk '{$1=\"\"; print NR $0}' tmp > $eigenfile")
             
         # Merge pmn files:
         self.runscript.append("\n#Merge pmn")
