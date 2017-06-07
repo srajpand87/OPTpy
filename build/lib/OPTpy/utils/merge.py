@@ -45,7 +45,7 @@ class MERGEflow(Workflow,Task):
             self.runscript.append("cat {0}/pmnhalf.d >> $pmnfile".format(itask+1))
         # Merge pnn files:
         self.runscript.append("\n#Merge pnn")
-        self.runscript.append("cat 1/pnnhalf.d > $pnnfile")
+        self.runscript.append("cat 1/pnn.d > $pnnfile")
         for itask in range(1,ntask):
             self.runscript.append("cat {0}/pnn.d >> $pnnfile".format(itask+1))
 
