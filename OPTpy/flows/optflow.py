@@ -47,7 +47,7 @@ class OPTflow(Workflow):
             Directory in which pseudopotential files are found.
         pseudos : list, str
             Pseudopotential files.
-        split_by_node : logic, optional
+        split_by_proc : logic, optional
             Default = False
             Split WFN/RPMS tasks by number of processors.
         structure : pymatgen.Structure
@@ -65,7 +65,7 @@ class OPTflow(Workflow):
         kwargs.pop('dirname', None)
         self.ngkpt = kwargs.pop('ngkpt',[1,1,1])
         self.kshift = kwargs.pop('kshift', [.0,.0,.0])
-        self.split_by_node = kwargs.pop('split_by_node',False)
+        self.split_by_proc = kwargs.pop('split_by_proc',False)
         self.nproc = kwargs.pop('nproc',1)
 
         # ==== KK task ==== #
@@ -105,7 +105,7 @@ class OPTflow(Workflow):
         when calculation is split, it merges the output files """
         from ..utils import MERGEflow
 
-        if ( self.split_by_node == True ):
+        if ( self.split_by_proc == True ):
             dirname='03-RPMNS/'
             self.mergetask = MERGEflow(
                 dirname = os.path.join(self.dirname, dirname),
@@ -119,14 +119,14 @@ class OPTflow(Workflow):
         Compute momentum matrix elements. """
         from ..utils import RPMNSflow
 
-        if ( self.split_by_node == False ):
+        if ( self.split_by_proc == False ):
             self.rpmnstask = RPMNSflow(
                 dirname = os.path.join(self.dirname, '03-RPMNS'),
                 **kwargs)
             self.add_task(self.rpmnstask)
         else:
             # Divide calculation by nproc:
-            kwargs.update(nproc=1)
+            kwargs.update(mpirun='')
             for self.task in range(self.ntask):
                 dirname='03-RPMNS/'+str(self.task+1)
                 self.rpmnstask = RPMNSflow(
@@ -175,7 +175,7 @@ class OPTflow(Workflow):
 
 #       WFN calculation
         wfn_fnames = [] 
-        if ( self.split_by_node == False ):
+        if ( self.split_by_proc == False ):
             self.wfntask = AbinitWfnTask(
                 dirname = os.path.join(self.dirname, '02-WFN'),
                 **kwargs)
@@ -192,7 +192,7 @@ class OPTflow(Workflow):
             self.ntask=self.nproc
             # split tasks: 
             for self.task in range(self.ntask):
-                kwargs.update(nproc=1)
+                kwargs.update(mpirun='')
                 dirname='02-WFN/'+str(self.task+1)
                 self.wfntask = AbinitWfnTask(
                     dirname = os.path.join(self.dirname, dirname),
