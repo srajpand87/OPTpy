@@ -11,6 +11,11 @@ __all__ = ['RESPONSEflow']
 #       42 shg1V---Velocity gauge-1w&2w      43 shg2V---Velocity gauge-2w         
 #       44 shg1C---Layer-Length gauge-1w&2w  45 shg2C---Layer-Length gauge-2w     
 #       26 ndotccp-layer carrier injection   27 ndotvv--carrier injection 
+#       46 sigma---shift current             47 calsigma-layer shift current !NOT IMPLEMENTED!
+#       32 eta_ec--electric current          33 caleta_ec-layer electric current
+#       48 mu------spin injection current    49 calmu---layer spin injection current
+
+
 response_dict={
     1  : 'chi1'  , 24 : 'calChi1-layer',
     3  : 'eta2'  , 25 : 'calEta2-layer', 
@@ -18,7 +23,10 @@ response_dict={
     21 : 'shg1L' , 22 : 'shg2L', 
     26 : 'ndotccp-layer' ,  27 : 'ndotvv',
     42 : 'shg1V' , 43 : 'shg2V',
-    44 : 'shg1C' , 45 : 'shg2C' 
+    44 : 'shg1C' , 45 : 'shg2C', 
+    46 : 'sigma' , 47 : 'calsigma',
+    32 : 'eta_ec', 33 : 'caleta_ec',
+    48 : 'mu'    , 49 : 'calmu'
 }
 component_dict={ 'x' : 1, 'y' : 2, 'z' : 3 }
 
