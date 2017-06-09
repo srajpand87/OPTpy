@@ -77,6 +77,7 @@ class RESPONSEflow(Workflow):
         self.prefix = kwargs['prefix']
         self.components = kwargs['components']
         self.response = kwargs['response']
+        self.static = kwargs.pop('static',1)
 #       Optional arguments:
         self.lt = kwargs.pop('lt','total')
         self.scissors = kwargs.pop('scissors',0.000)
@@ -214,7 +215,7 @@ class RESPONSEflow(Workflow):
 #       spectra.params file:
         filename=self.dirname+"/spectra.params_"+self.case
         f=open(filename,"w")
-        f.write("%i\n" % (n_component))
+        f.write("{0} {1}\n".format(n_component,self.static))
         for ii in range(n_component):
 #           Map component 'xyz' to digits '123'
             cc=list(self.components[ii])
