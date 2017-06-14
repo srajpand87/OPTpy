@@ -61,7 +61,7 @@ class MERGEflow(Workflow,Task):
            spin="-spin"
         else:
            spin=""
-        sufix="_{0}_{1}{2}".format(kgrid,self.ecut,spin)
+        sufix="_{0}_{1}{2}".format(kgrid,int(self.ecut),spin)
         #
         eigenfile="eigen"+sufix
         self.eigenfile=path.join(cwd,eigenfile)

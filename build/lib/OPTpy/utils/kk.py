@@ -1,7 +1,6 @@
 from os import path, mkdir,curdir
 from ..external import Structure 
-from ..core import Workflow 
-from pymatgen.symmetry.analyzer import SpacegroupAnalyzer 
+from ..core import Workflow,IOTask 
 from numpy import int as np_int
 from numpy import array as np_array
 from numpy import linalg as np_linalg
@@ -9,7 +8,7 @@ from numpy import ones as np_ones
 
 __all__ = ['KKflow']
 
-class KKflow(Workflow):
+class KKflow(Workflow,IOTask):
     def __init__(self,**kwargs):
         """ 
         keyword arguments:
@@ -23,34 +22,104 @@ class KKflow(Workflow):
         self.kgrid_response = kwargs['kgrid_response']
         self.kgrid="{}x{}x{}".format(self.kgrid_response[0],self.kgrid_response[1],self.kgrid_response[2])
 
+        # --- Write run.sh file ---
+
+        # Define variables:
+        self.runscript.variables={
+            'IBZ' : 'ibz'}
+        #
+        # Copy files:
+        #
+        self.update_link(self.pvectors_fname,'pvectors')
+        self.update_link(self.symd_fname,'sym.d')
+        #
+        # Extra lines:
+        #
+        self.runscript.append("#Executable")
+        self.runscript.append("$IBZ -abinit -tetrahedra -cartesian -symmetries -reduced -mesh\n")
+        self.runscript.append("#Rename output files:")
+
+	self.runscript.append("mv kpoints.reciprocal {0}".format(self.kreciprocal_fname))
+   	self.runscript.append("mv kpoints.cartesian {0}".format(self.kcartesian_fname))
+   	self.runscript.append("mv tetrahedra {0}".format(self.tetrahedra_fname))
+   	self.runscript.append("mv Symmetries.Cartesian {0}".format(self.symmetries_fname))
+#   	self.runscript.append("cd ..")
+#   	self.runscript.append("rm -rf TMP/")
+
+
 
     def write(self):
         """ Makes KK directory.
     	This contains symmetries and lattice parameters"""
+        
+        super(IOTask, self).write()
 
-#       Gets symmetries with pymatgen:
+        self.get_syms()
+        self.write_grid()
+          
+        
+    @property
+    def tetrahedra_fname(self):
+        original = path.realpath(curdir)
+        tetrahedra_fname='symmetries/tetrahedra_{0}'.format(self.kgrid)
+        return path.join(original, tetrahedra_fname) 
+
+    @property
+    def symmetries_fname(self):
+        original = path.realpath(curdir)
+        symmetries_fname='symmetries/Symmetries.Cartesian_{0}'.format(self.kgrid)
+        return path.join(original, symmetries_fname) 
+
+    @property
+    def pvectors_fname(self):
+        original = path.realpath(curdir)
+        pvectors_fname='symmetries/pvectors'
+        return path.join(original, pvectors_fname)
+ 
+    @property
+    def symd_fname(self):
+        original = path.realpath(curdir)
+        symd_fname='symmetries/symd'
+        return path.join(original, symd_fname)
+
+    @property
+    def kreciprocal_fname(self):
+        original = path.realpath(curdir)
+        kreciprocal_fname='{0}.klist_{1}'.format(self.prefix,self.kgrid)
+        return path.join(original, kreciprocal_fname)
+
+    @property
+    def kcartesian_fname(self):
+        original = path.realpath(curdir)
+        kcartesian_fname='symmetries/{0}.kcartesian_{1}'.format(self.prefix,self.kgrid)
+        return path.join(original, kcartesian_fname)
+ 
+    def get_syms(self):
+        """ Gets symmetries with Pymatgen""" 
+        from pymatgen.symmetry.analyzer import SpacegroupAnalyzer 
+        # Gets symmetries with pymatgen:
         symprec=0.1 # symmetry tolerance for the Spacegroup Analyzer
                     #used to generate the symmetry operations
         sga = SpacegroupAnalyzer(self.structure, symprec)
-#       ([SymmOp]): List of symmetry operations.
+        # ([SymmOp]): List of symmetry operations.
         SymmOp=sga.get_symmetry_operations()
         nsym=len(SymmOp)
 
-#       Symmetries directory:
-#        dirname=path.dirname(path.abspath(__file__))
+        # Symmetries directory:
+        # dirname=path.dirname(path.abspath(__file__))
         dirname=path.realpath(curdir)
         newdir="symmetries"
         SYMdir=path.join(dirname,newdir)
         if not path.exists(SYMdir):
             mkdir(SYMdir)
 
-#       symmetries/sym.d file:
-        filename=SYMdir+"/sym.d"
-        f=open(filename,"w")
+        # symmetries/sym.d file:
+        #self.symd_fname=SYMdir+"/sym.d"
+        f=open(self.symd_fname,"w")
         f.write("%i\n" % (nsym))
         for isym in range(0,nsym):
             symrel=np_array(SymmOp[isym].rotation_matrix) #rotations
-#           Transpose all symmetry matrices
+            # Transpose all symmetry matrices
             symrel = np_linalg.inv(symrel.transpose())
             symrel = np_array(symrel,np_int)
             #translation=SymmOp[isym].translation_vector
@@ -58,59 +127,33 @@ class KKflow(Workflow):
 	    f.write(" ".join(map(str, symrel[1][:]))+" ")
             f.write(" ".join(map(str, symrel[2][:]))+"\n")
         f.close()
-#       Get lattice parameters
+        # Get lattice parameters
         lattice=self.structure.lattice
         rprim=lattice
         ang2bohr=1.88972613
         acell=np_ones(3)*ang2bohr
-#       Write pvectors file
-#       symmetries/pvectors file:
-        filename=SYMdir+"/pvectors"
-        f=open(filename,"w")
+        # Write pvectors file
+        # symmetries/pvectors file:
+#        self.pvectors_fname=SYMdir+"/pvectors"
+        f=open(self.pvectors_fname,"w")
         f.write(str(lattice)+"\n")
         f.write(" ".join(map(str, acell[:]))+"\n")
         f.close()
-#       KK directory:
-        #dirname=path.dirname(path.abspath(__file__))
-        dirname=path.realpath(curdir)
-        newdir=self.dirname
-        KKdir=path.join(dirname,newdir)
-        if not path.exists(KKdir):
-            mkdir(KKdir)
-#       Write KK/run.sh file
-        filename=KKdir+"/run.sh"
-        f=open(filename,"w")
-        f.write("#!/bin/bash\n\n")
-        f.write("IBZ=ibz\n")
-        f.write("#Copy files\n")
-	f.write("cp ../symmetries/pvectors .\n")
-	f.write("cp ../symmetries/sym.d .\n\n")
-        f.write("#Executable\n")
-        f.write("$IBZ -abinit -tetrahedra -cartesian -symmetries -reduced -mesh\n\n")
-        f.write("#Rename output files:\n")
 
-#	f.write("NKPT=`wc kpoints.reciprocal | awk '{print $1}'`\n\n")
-	f.write("mv kpoints.reciprocal ../{}.klist_{}\n".format(self.prefix,self.kgrid))
-   	f.write("mv kpoints.cartesian ../symmetries/{}.kcartesian_{}\n".format(self.prefix,self.kgrid))
-   	f.write("mv tetrahedra ../symmetries/tetrahedra_{}\n".format(self.kgrid))
-   	f.write("mv Symmetries.Cartesian ../symmetries/Symmetries.Cartesian_{}\n".format(self.kgrid))
-#   	f.write("cd ..\n")
-#   	f.write("rm -rf TMP/")
-        f.close()
-#       Write KK/grid file
-        filename=KKdir+"/grid"
+    def write_grid(self):
+        """ Writes KK/grid file to define the Tetrahedra k-point grid """
+    
+        #Write KK/grid file
+        filename=self.dirname+"/grid"
         f=open(filename,"w")
         f.write(" ".join(map(str, self.kgrid_response[:]))+"\n")
         f.close()
-#       PENDING: need to get rid of this file:
-#       Write KK/fort.83
-#       0 if 'odd_rank'
-#       1 if system was rendered non-centrosymmetric via odd_rank.sh
-#       2 normal case
-        filename=KKdir+"/fort.83"
+        #PENDING: need to get rid of this file:
+        #Write KK/fort.83
+        #0 if 'odd_rank'
+        #1 if system was rendered non-centrosymmetric via odd_rank.sh
+        #2 normal case
+        filename=self.dirname+"/fort.83"
         f=open(filename,"w")
         f.write("2 \n") 
         f.close()
-        
-
-        

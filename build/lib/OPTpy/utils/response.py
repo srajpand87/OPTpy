@@ -1,5 +1,5 @@
 from os import path, mkdir,curdir
-from ..core import Workflow 
+from ..core import Workflow,MPITask 
 
 __all__ = ['RESPONSEflow']
 
@@ -11,6 +11,11 @@ __all__ = ['RESPONSEflow']
 #       42 shg1V---Velocity gauge-1w&2w      43 shg2V---Velocity gauge-2w         
 #       44 shg1C---Layer-Length gauge-1w&2w  45 shg2C---Layer-Length gauge-2w     
 #       26 ndotccp-layer carrier injection   27 ndotvv--carrier injection 
+#       46 sigma---shift current             47 calsigma-layer shift current !NOT IMPLEMENTED!
+#       32 eta_ec--electric current          33 caleta_ec-layer electric current
+#       48 mu------spin injection current    49 calmu---layer spin injection current
+
+
 response_dict={
     1  : 'chi1'  , 24 : 'calChi1-layer',
     3  : 'eta2'  , 25 : 'calEta2-layer', 
@@ -18,11 +23,14 @@ response_dict={
     21 : 'shg1L' , 22 : 'shg2L', 
     26 : 'ndotccp-layer' ,  27 : 'ndotvv',
     42 : 'shg1V' , 43 : 'shg2V',
-    44 : 'shg1C' , 45 : 'shg2C' 
+    44 : 'shg1C' , 45 : 'shg2C', 
+    46 : 'sigma' , 47 : 'calsigma',
+    32 : 'eta_ec', 33 : 'caleta_ec',
+    48 : 'mu'    , 49 : 'calmu'
 }
 component_dict={ 'x' : 1, 'y' : 2, 'z' : 3 }
 
-class RESPONSEflow(Workflow):
+class RESPONSEflow(Workflow,MPITask):
     def __init__(self,**kwargs):
         """ 
         keyword arguments:
@@ -77,6 +85,7 @@ class RESPONSEflow(Workflow):
         self.prefix = kwargs['prefix']
         self.components = kwargs['components']
         self.response = kwargs['response']
+        self.static = kwargs.pop('static',1)
 #       Optional arguments:
         self.lt = kwargs.pop('lt','total')
         self.scissors = kwargs.pop('scissors',0.000)
@@ -89,22 +98,61 @@ class RESPONSEflow(Workflow):
         self.option = kwargs.pop('option',1)
         self.smearvalue = kwargs.pop('smearvalue',0.15)
 
+        # tetrahedra_fname:        
+        original = path.realpath(curdir)
+        tetrahedra_fname='symmetries/tetrahedra_{0}'.format(self.kgrid)
+        tetrahedra_fname=path.join(original, tetrahedra_fname) 
+        self.tetrahedra_fname = kwargs.pop('tetrahedra_fname',tetrahedra_fname)
 
-    def write_latm_input(self):
-        """ Write input files for RESP"""
-        from os import path, mkdir,curdir
+        # symmetries_fname
+        symmetries_fname='symmetries/Symmetries.Cartesian_{0}'.format(self.kgrid)
+        symmetries_fname=path.join(original, symmetries_fname) 
+        self.symmetries_fname = kwargs.pop('symmetries_fname',symmetries_fname)
 
-#       Create RESP dir.:
-        if not path.exists(self.dirname):
-            mkdir(self.dirname)
-
-
-#       Get case name:
+        # Get case name:
         self.case=str(self.kgrid)+"_"+str(int(self.ecut))
         if ( self.nspinor > 1 ):
             self.case = self.case+"-spin"
 
-    
+
+        # Write run.sh file:
+        
+        # Symbolic links: 
+        dest='tetrahedra_{0}'.format(self.kgrid)
+        self.update_link(self.tetrahedra_fname,dest)
+        #
+        dest="Symmetries.Cartesian"
+        self.update_link(self.symmetries_fname,dest)
+#        self.runscript.append("cp ../symmetries/tetrahedra_{} .".format(self.kgrid))
+#        self.runscript.append("cp ../symmetries/Symmetries.Cartesian_{} Symmetries.Cartesian".format(self.kgrid))
+        self.runscript.append("cp ../eigen_{} .".format(self.case))
+        self.runscript.append("cp ../pmn_{} .".format(self.case))
+        #
+        self.runscript.append("#Find number of k-points and replace kMax value in files:")
+        self.runscript.append("nkpt=`cat ../{0}.klist_{1} | wc  -l`".format(self.prefix,self.kgrid))
+        self.runscript.append("executable=`echo \"sed -i -e 's/XXX/$nkpt/g' tmp_{0}\"`".format(self.case))
+        self.runscript.append("eval $executable\n")
+        # 
+        self.runscript.append("#Executable\nset_input_all tmp_{0} spectra.params_{0}".format(self.case))
+        # Integrate each response at a time:
+        resp_name=response_dict[self.response]
+        self.runscript.append("#Integrate each component at a time:")
+        for component in self.components:
+            self.runscript.append("#Component %s" % (component)) 
+            self.runscript.append("sed s/Integrand_%s/%s.%s.dat_%s/ tmp_%s >tmp1_%s"
+            % (self.case,resp_name,component,self.case,self.case,self.case))
+            self.runscript.append("sed s/Spectrum_%s/%s.%s.spectrum_ab_%s/ tmp1_%s > int_%s_%s"
+            % (self.case,resp_name,component,self.case,self.case,component,self.case))
+            self.runscript.append("#Executable\ntetra_method_all int_%s_%s" 
+            % (component,self.case))
+ 
+#        self.runscript.append("rm -f tmp*\n")
+
+#       Write other files:
+    def write_latm_input(self):
+        """ Write input files for RESP"""
+        from os import path, mkdir,curdir
+
 #       Get number of k-points from file
         kfile="../{}.klist_{}".format(self.prefix,self.kgrid)
 #        kMax=sum(1 for line in open(kfile))
@@ -128,8 +176,8 @@ class RESPONSEflow(Workflow):
         spectrum_filename= "Spectrum_"+self.case
  
 #       1. write tmp_$case file:
-        filename=self.dirname+"/tmp_"+self.case
-        f=open(filename,"w")
+        fname=self.dirname+"/tmp_"+self.case
+        f=open(fname,"w")
 #            % (self.lt,case,self.scissors,self.option,self.nval,self.nval_total,self.ncond,ncond_total,self.response,component_list,self.smearvalue,str(self.vnlkss)))
         f.write("&INDATA\n")
         f.write("nVal = %i,\n" % (self.nval))
@@ -160,39 +208,6 @@ class RESPONSEflow(Workflow):
 
         f.close()
 
-    def write_run_file(self):
-        """ Writes file run.sh """
-#       run.sh
-        filename=self.dirname+"/run.sh"
-        f=open(filename,"w")
-        #
-        f.write("#Copy files:\n")
-        f.write("cp ../symmetries/tetrahedra_{} .\n".format(self.kgrid))
-        f.write("cp ../symmetries/Symmetries.Cartesian_{} Symmetries.Cartesian\n".format(self.kgrid))
-        f.write("cp ../eigen_{} .\n".format(self.case))
-        f.write("cp ../pmn_{} .\n".format(self.case))
-        #
-        f.write("\n#Find number of k-points and replace kMax value in files:\n")
-        f.write("nkpt=`cat ../{0}.klist_{1} | wc  -l`\n".format(self.prefix,self.kgrid))
-        f.write("executable=`echo \"sed -i -e 's/XXX/$nkpt/g' tmp_{0}\"`\n".format(self.case))
-        f.write("eval $executable\n\n")
-        # 
-        f.write("#Executable\nset_input_all tmp_{0} spectra.params_{0}\n".format(self.case))
-        # Integrate each response at a time:
-        resp_name=response_dict[self.response]
-        f.write("\n#Integrate each component at a time:\n")
-        for component in self.components:
-            f.write("#Component %s\n" % (component)) 
-            f.write("sed s/Integrand_%s/%s.%s.dat_%s/ tmp_%s >tmp1_%s\n"
-            % (self.case,resp_name,component,self.case,self.case,self.case))
-            f.write("sed s/Spectrum_%s/%s.%s.spectrum_ab_%s/ tmp1_%s > int_%s_%s\n"
-            % (self.case,resp_name,component,self.case,self.case,component,self.case))
-            f.write("#Executable\ntetra_method_all int_%s_%s\n\n" 
-            % (component,self.case))
- 
-#        f.write("rm -f tmp*\n")
-        f.close()
-
     def write_opt_file(self):
         """ Writes file opt.dat required by Tiniba
            option=1 from all valence bands Nv to 1...Nc conduction bands
@@ -214,7 +229,7 @@ class RESPONSEflow(Workflow):
 #       spectra.params file:
         filename=self.dirname+"/spectra.params_"+self.case
         f=open(filename,"w")
-        f.write("%i\n" % (n_component))
+        f.write("{0} {1}\n".format(n_component,self.static))
         for ii in range(n_component):
 #           Map component 'xyz' to digits '123'
             cc=list(self.components[ii])
@@ -234,8 +249,10 @@ class RESPONSEflow(Workflow):
 
     def write(self):
         """ Compute optical responses using Tiniba executables"""
+
+        # Main directory, etc...
+        super(MPITask, self).write()
         self.write_latm_input()
-        self.write_run_file()
         self.write_spectra_params()
         self.write_opt_file()
 

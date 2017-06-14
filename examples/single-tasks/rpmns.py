@@ -5,7 +5,7 @@ flow = RPMNSflow(
    nval_total=4,   # Number of valence bands
    ecut=5.0,       # Kinetic-energy cutoff
    nspinor=1,      # Number of spinorial components
-   nkTetra=5,      # k-grid for tetrahedrum integration
+   kgrid_response=[4,4,4], # k-point grid for responses
 )
 flow.write()
 

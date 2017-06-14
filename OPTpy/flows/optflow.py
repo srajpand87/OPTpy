@@ -69,7 +69,9 @@ class OPTflow(Workflow):
         self.nproc = kwargs.pop('nproc',1)
 
         # ==== KK task ==== #
-        self.make_kk_task(**kwargs)
+        tetrahedra_fname,symmetries_fname=self.make_kk_task(**kwargs)
+        kwargs.update(tetrahedra_fname=tetrahedra_fname,
+                      symmetries_fname=symmetries_fname)
 
         # ==== DFT calculations ==== #
         wfn_fnames=self.make_dft_tasks_abinit(**kwargs)
@@ -99,6 +101,13 @@ class OPTflow(Workflow):
             **kwargs)
 
         self.add_task(self.kktask)
+        kwargs.update(
+            tetrahedra_fname = self.kktask.tetrahedra_fname,
+            symmetries_fname = self.kktask.symmetries_fname)
+        tetrahedra_fname = self.kktask.tetrahedra_fname
+        symmetries_fname = self.kktask.symmetries_fname
+       
+        return tetrahedra_fname,symmetries_fname
            
     def make_merge_task(self,**kwargs):
         """ Run merge task: 
@@ -159,8 +168,7 @@ class OPTflow(Workflow):
 
         # Either charge density is provided or an SCF task is initialized.
         if 'charge_density_fname' in kwargs:
-            raise Exception("Error, when providing charge_density_fname is required")
-
+            print("Skiping SCF calculation\n")
         else:
             self.scftask = AbinitScfTask(
                 dirname = os.path.join(self.dirname, '01-Density'),
