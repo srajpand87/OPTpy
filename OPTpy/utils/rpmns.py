@@ -55,17 +55,35 @@ class RPMNSflow(Workflow,MPITask):
         # Executable
         self.runscript.append("#Executable")
         self.runscript.append("$MPIRUN rpmns $WFK $RHO $EM $PMN $RHOMM $LPMN $LPMM $SCCP $lSCCP")
-
-
-
         # Rename output files:
         if ( rename ):
-            if ( self.nspinor > 1 ):
-                postfix="_{0}_{1}-spin".format(self.kgrid,self.ecut)
-            else:
-                postfix="_{0}_{1}".format(self.kgrid,self.ecut)
+            self.runscript.append("cp eigen.d {0}\n".format(self.eigen_fname))
+            self.runscript.append("cp pmnhalf.d {0}\n".format(self.pmn_fname))
+            self.runscript.append("cp pnn.d {0}\n".format(self.pnn_fname))
 
-            f.write("cp eigen.d ../eigen{0}\n".format(postfix))
-            f.write("cp pmnhalf.d ../pmn{0}\n".format(postfix))
-            f.write("cp pnn.d ../pnn{0}\n".format(postfix))
-            f.close()
+    @property
+    def eigen_fname(self):
+        original = path.realpath(curdir)
+        eigen_fname='eigen{0}'.format(self.suffix)
+        return path.join(original, eigen_fname) 
+
+    @property
+    def pmn_fname(self):
+        original = path.realpath(curdir)
+        pmn_fname='pmn{0}'.format(self.suffix)
+        return path.join(original, pmn_fname) 
+
+    @property
+    def pnn_fname(self):
+        original = path.realpath(curdir)
+        pnn_fname='pnn{0}'.format(self.suffix)
+        return path.join(original, pnn_fname) 
+
+    @property
+    def suffix(self):
+        if ( self.nspinor > 1):
+           spin="-spin"
+        else:
+           spin=""
+        suffix="_{0}_{1}{2}".format(self.kgrid,int(self.ecut),spin)
+        return suffix

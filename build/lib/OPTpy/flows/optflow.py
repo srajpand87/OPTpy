@@ -78,7 +78,11 @@ class OPTflow(Workflow):
         kwargs.update(wfn_fname=wfn_fnames)
 
         # === RPMNS calculation === #
-        self.make_rpmns_task(**kwargs)  
+        (eigen_fname,pmn_fname,pnn_fname)=self.make_rpmns_task(**kwargs)  
+        kwargs.update(
+		eigen_fname=eigen_fname,
+		pmn_fname=pmn_fname,
+		pnn_fname=pnn_fname)
 
         # === MERGE files === #
         self.make_merge_task(**kwargs)  
@@ -147,6 +151,15 @@ class OPTflow(Workflow):
                 self.add_task(self.rpmnstask,background=True)
             self.runscript.append("wait\n")
 
+        eigen_fname=self.rpmnstask.eigen_fname
+        pmn_fname=self.rpmnstask.pmn_fname
+        pnn_fname=self.rpmnstask.pnn_fname
+        kwargs.update(
+            eigen_fname=eigen_fname,
+            pmn_fname=pmn_fname,
+            pnn_fname=pnn_fname) 
+        return eigen_fname,pmn_fname,pnn_fname 
+
     def make_response_task(self,**kwargs):
         """ Run response task.
         Compute responses with Tiniba. """
@@ -194,7 +207,7 @@ class OPTflow(Workflow):
             wfn_fnames.append(wfn_fname)
 
             #fnames = dict(wfn_fname = os.path.join('../',self.wfntask.wfn_fname))
-            #return fnames
+            return fnames
         else : 
             # Divide calculation by nproc:
             self.ntask=self.nproc

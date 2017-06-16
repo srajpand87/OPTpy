@@ -98,22 +98,13 @@ class RESPONSEflow(Workflow,MPITask):
         self.option = kwargs.pop('option',1)
         self.smearvalue = kwargs.pop('smearvalue',0.15)
 
-        # tetrahedra_fname:        
-        original = path.realpath(curdir)
-        tetrahedra_fname='symmetries/tetrahedra_{0}'.format(self.kgrid)
-        tetrahedra_fname=path.join(original, tetrahedra_fname) 
-        self.tetrahedra_fname = kwargs.pop('tetrahedra_fname',tetrahedra_fname)
-
-        # symmetries_fname
-        symmetries_fname='symmetries/Symmetries.Cartesian_{0}'.format(self.kgrid)
-        symmetries_fname=path.join(original, symmetries_fname) 
-        self.symmetries_fname = kwargs.pop('symmetries_fname',symmetries_fname)
-
         # Get case name:
         self.case=str(self.kgrid)+"_"+str(int(self.ecut))
         if ( self.nspinor > 1 ):
             self.case = self.case+"-spin"
 
+        # Get input file names:
+        self.get_filenames(**kwargs)
 
         # Write run.sh file:
         
@@ -123,10 +114,15 @@ class RESPONSEflow(Workflow,MPITask):
         #
         dest="Symmetries.Cartesian"
         self.update_link(self.symmetries_fname,dest)
-#        self.runscript.append("cp ../symmetries/tetrahedra_{} .".format(self.kgrid))
-#        self.runscript.append("cp ../symmetries/Symmetries.Cartesian_{} Symmetries.Cartesian".format(self.kgrid))
-        self.runscript.append("cp ../eigen_{} .".format(self.case))
-        self.runscript.append("cp ../pmn_{} .".format(self.case))
+        #
+        dest="eigen_{0}".format(self.case)
+        self.update_link(self.eigen_fname,dest)
+        #
+        dest="pmn_{0}".format(self.case)
+        self.update_link(self.pmn_fname,dest)
+        #
+        dest="pnn_{0}".format(self.case)
+        self.update_link(self.pnn_fname,dest)
         #
         self.runscript.append("#Find number of k-points and replace kMax value in files:")
         self.runscript.append("nkpt=`cat ../{0}.klist_{1} | wc  -l`".format(self.prefix,self.kgrid))
@@ -256,4 +252,30 @@ class RESPONSEflow(Workflow,MPITask):
         self.write_spectra_params()
         self.write_opt_file()
 
+    def get_filenames(self,**kwargs):
 
+        original = path.realpath(curdir)
+        # tetrahedra_fname:        
+        tetrahedra_fname='symmetries/tetrahedra_{0}'.format(self.kgrid)
+        tetrahedra_fname=path.join(original, tetrahedra_fname) 
+        self.tetrahedra_fname = kwargs.pop('tetrahedra_fname',tetrahedra_fname)
+
+        # symmetries_fname
+        symmetries_fname='symmetries/Symmetries.Cartesian_{0}'.format(self.kgrid)
+        symmetries_fname=path.join(original, symmetries_fname) 
+        self.symmetries_fname = kwargs.pop('symmetries_fname',symmetries_fname)
+
+        # eigen_fname
+        eigen_fname='eigen_{0}'.format(self.case)
+        eigen_fname=path.join(original, eigen_fname) 
+        self.eigen_fname = kwargs.pop('eigen_fname',eigen_fname)
+
+        # pmn_fname
+        pmn_fname='pmn_{0}'.format(self.case)
+        pmn_fname=path.join(original, pmn_fname) 
+        self.pmn_fname = kwargs.pop('pmn_fname',pmn_fname)
+
+        # pnn_fname
+        pnn_fname='pnn_{0}'.format(self.case)
+        pnn_fname=path.join(original, pnn_fname) 
+        self.pnn_fname = kwargs.pop('pnn_fname',pnn_fname)

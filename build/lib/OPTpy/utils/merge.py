@@ -23,12 +23,12 @@ class MERGEflow(Workflow,Task):
         self.kgrid_response = kwargs['kgrid_response']
         self.nspinor = kwargs.pop('nspinor',1)
 
-        self.get_filenames()
+        self.get_filenames(**kwargs)
 
         #Write run.sh file:
-        self.runscript.append("eigenfile={0}".format(self.eigenfile))
-        self.runscript.append("pmnfile={0}".format(self.pmnfile))
-        self.runscript.append("pnnfile={0}".format(self.pnnfile))
+        self.runscript.append("eigen_fname={0}".format(self.eigen_fname))
+        self.runscript.append("pmn_fname={0}".format(self.pmn_fname))
+        self.runscript.append("pnn_fname={0}".format(self.pnn_fname))
         self.runscript.append("")
 
         # Merge eigenvalue files:
@@ -36,38 +36,25 @@ class MERGEflow(Workflow,Task):
         self.runscript.append("cat 1/eigen.d > tmp")
         for itask in range(1,ntask):
             self.runscript.append("cat {0}/eigen.d >> tmp".format(itask+1))
-        self.runscript.append("awk '{$1=\"\"; print NR $0}' tmp > $eigenfile")
+        self.runscript.append("awk '{$1=\"\"; print NR $0}' tmp > $eigen_fname")
             
         # Merge pmn files:
         self.runscript.append("\n#Merge pmn")
-        self.runscript.append("cat 1/pmnhalf.d > $pmnfile")
+        self.runscript.append("cat 1/pmnhalf.d > $pmn_fname")
         for itask in range(1,ntask):
-            self.runscript.append("cat {0}/pmnhalf.d >> $pmnfile".format(itask+1))
+            self.runscript.append("cat {0}/pmnhalf.d >> $pmn_fname".format(itask+1))
         # Merge pnn files:
         self.runscript.append("\n#Merge pnn")
-        self.runscript.append("cat 1/pnn.d > $pnnfile")
+        self.runscript.append("cat 1/pnn.d > $pnn_fname")
         for itask in range(1,ntask):
-            self.runscript.append("cat {0}/pnn.d >> $pnnfile".format(itask+1))
+            self.runscript.append("cat {0}/pnn.d >> $pnn_fname".format(itask+1))
 
-    def get_filenames(self):
+    def get_filenames(self,**kwargs):
         """ Get filenames for files to merge """ 
         from os import path, mkdir,curdir
         from os import getcwd
 
         #Get filenames: 
-        kgrid="{}x{}x{}".format(self.kgrid_response[0],self.kgrid_response[1],self.kgrid_response[2])
-        cwd=getcwd()
-        if ( self.nspinor > 1):
-           spin="-spin"
-        else:
-           spin=""
-        sufix="_{0}_{1}{2}".format(kgrid,int(self.ecut),spin)
-        #
-        eigenfile="eigen"+sufix
-        self.eigenfile=path.join(cwd,eigenfile)
-        #
-        pmnfile="pmn"+sufix
-        self.pmnfile=path.join(cwd,pmnfile)
-        #
-        pnnfile="pnn"+sufix
-        self.pnnfile=path.join(cwd,pnnfile)
+        self.eigen_fname=kwargs['eigen_fname']
+        self.pmn_fname=kwargs['pmn_fname']
+        self.pnn_fname=kwargs['pnn_fname']
