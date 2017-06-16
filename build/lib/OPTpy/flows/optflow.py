@@ -69,9 +69,10 @@ class OPTflow(Workflow):
         self.nproc = kwargs.pop('nproc',1)
 
         # ==== KK task ==== #
-        tetrahedra_fname,symmetries_fname=self.make_kk_task(**kwargs)
+        tetrahedra_fname,symmetries_fname,kreciprocal_fname=self.make_kk_task(**kwargs)
         kwargs.update(tetrahedra_fname=tetrahedra_fname,
-                      symmetries_fname=symmetries_fname)
+                      symmetries_fname=symmetries_fname,
+                      kreciprocal_fname=kreciprocal_fname)
 
         # ==== DFT calculations ==== #
         wfn_fnames=self.make_dft_tasks_abinit(**kwargs)
@@ -107,11 +108,13 @@ class OPTflow(Workflow):
         self.add_task(self.kktask)
         kwargs.update(
             tetrahedra_fname = self.kktask.tetrahedra_fname,
-            symmetries_fname = self.kktask.symmetries_fname)
+            symmetries_fname = self.kktask.symmetries_fname,
+            kreciprocal_fname = self.kktask.kreciprocal_fname)
         tetrahedra_fname = self.kktask.tetrahedra_fname
         symmetries_fname = self.kktask.symmetries_fname
+        kreciprocal_fname = self.kktask.kreciprocal_fname
        
-        return tetrahedra_fname,symmetries_fname
+        return tetrahedra_fname,symmetries_fname, kreciprocal_fname
            
     def make_merge_task(self,**kwargs):
         """ Run merge task: 

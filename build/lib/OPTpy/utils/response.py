@@ -112,6 +112,9 @@ class RESPONSEflow(Workflow,MPITask):
         dest='tetrahedra_{0}'.format(self.kgrid)
         self.update_link(self.tetrahedra_fname,dest)
         #
+        dest='{0}.klist_{1}'.format(self.prefix,self.kgrid)
+        self.update_link(self.kreciprocal_fname,dest)
+        #
         dest="Symmetries.Cartesian"
         self.update_link(self.symmetries_fname,dest)
         #
@@ -125,7 +128,7 @@ class RESPONSEflow(Workflow,MPITask):
         self.update_link(self.pnn_fname,dest)
         #
         self.runscript.append("#Find number of k-points and replace kMax value in files:")
-        self.runscript.append("nkpt=`cat ../{0}.klist_{1} | wc  -l`".format(self.prefix,self.kgrid))
+        self.runscript.append("nkpt=`cat {0}.klist_{1} | wc  -l`".format(self.prefix,self.kgrid))
         self.runscript.append("executable=`echo \"sed -i -e 's/XXX/$nkpt/g' tmp_{0}\"`".format(self.case))
         self.runscript.append("eval $executable\n")
         # 
@@ -259,6 +262,11 @@ class RESPONSEflow(Workflow,MPITask):
         tetrahedra_fname='symmetries/tetrahedra_{0}'.format(self.kgrid)
         tetrahedra_fname=path.join(original, tetrahedra_fname) 
         self.tetrahedra_fname = kwargs.pop('tetrahedra_fname',tetrahedra_fname)
+
+        # kreciprocal_fname:        
+        kreciprocal_fname='{0}.klist_{1}'.format(self.prefix,self.kgrid)
+        kreciprocal_fname=path.join(original, kreciprocal_fname) 
+        self.kreciprocal_fname = kwargs.pop('kreciprocal_fname',kreciprocal_fname)
 
         # symmetries_fname
         symmetries_fname='symmetries/Symmetries.Cartesian_{0}'.format(self.kgrid)
