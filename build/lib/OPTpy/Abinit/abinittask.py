@@ -40,8 +40,6 @@ class AbinitTask(DFTTask, IOTask):
         kshift : list(3), float, optional
             Relative shift of the k-points grid along each direction,
             as a fraction of the smallest division along that direction.
-        qshift : list(3), float, optional
-            Absolute shift of the k-points grid along each direction.
         input_variables : dict
             Any other input variables for the Abinit input file.
 
@@ -51,9 +49,6 @@ class AbinitTask(DFTTask, IOTask):
 
         super(AbinitTask, self).__init__(dirname, **kwargs)
 
-        #self.ngkpt  = kwargs.get('ngkpt', 3*[1])
-        #self.kshift = kwargs.get('kshift', 3*[.0])
-        #self.qshift = kwargs.get('qshift', 3*[.0])
 
         self.prefix = kwargs.get('prefix', 'abinit')
 
@@ -63,6 +58,13 @@ class AbinitTask(DFTTask, IOTask):
         self.input.set_variables(kwargs.get('input_variables', {}))
 
         self.runscript['ABINIT'] = kwargs.get('ABINIT', 'abinit')
+
+        # kpoints
+        if ( 'ngkpt' in kwargs ):
+            self.ngkpt  = kwargs.get('ngkpt', 3*[1])
+            self.kshift = kwargs.get('kshift', 3*[.0])
+            self.kptopt = kwargs.get('kptopt',1)
+            self.set_ngkpt(self.ngkpt,self.kshift)
 #       Add additional lines in run script:
         if ( hasattr(self,'runlines' )) :
             self.runscript.append(self.runlines)

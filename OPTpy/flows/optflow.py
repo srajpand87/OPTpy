@@ -194,7 +194,12 @@ class OPTflow(Workflow):
             kwargs.update(
                 charge_density_fname = self.scftask.charge_density_fname)
 
-#       WFN calculation
+        # WFN calculation
+
+        # Here we remove the variables related to k-points, 
+        #these are read from an external file.
+        if ( 'ngkpt' in kwargs ):
+            del kwargs['ngkpt']
         wfn_fnames = [] 
         if ( self.split_by_proc == False ):
             self.wfntask = AbinitWfnTask(
