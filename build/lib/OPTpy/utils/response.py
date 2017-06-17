@@ -144,6 +144,12 @@ class RESPONSEflow(Workflow,MPITask):
             % (self.case,resp_name,component,self.case,self.case,component,self.case))
             self.runscript.append("#Executable\ntetra_method_all int_%s_%s" 
             % (component,self.case))
+
+        # sigma.xyz.spectrum_ab_20x20x20_15-spin
+        origin="{0}.{1}.spetrum_ab_{2}".format(resp_name,component,self.case)
+        dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp_name,component,self.case,self.nval,self.ncond)
+        dest=path.join(self.res_dirname,dest)
+	self.runscript.append("cp {0} {1}".format(origin,dest))
  
 #        self.runscript.append("rm -f tmp*\n")
 
@@ -287,3 +293,13 @@ class RESPONSEflow(Workflow,MPITask):
         pnn_fname='pnn_{0}'.format(self.case)
         pnn_fname=path.join(original, pnn_fname) 
         self.pnn_fname = kwargs.pop('pnn_fname',pnn_fname)
+
+    @property
+    def res_dirname(self):
+        original = path.realpath(curdir)
+        res_dirname=path.join(original,'res')
+        res_dirname = path.relpath(res_dirname, path.join(original,self.dirname) )
+        if not path.exists(res_dirname):
+            mkdir(res_dirname)
+        return res_dirname
+        
