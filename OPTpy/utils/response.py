@@ -298,8 +298,8 @@ class RESPONSEflow(Workflow,MPITask):
     def res_dirname(self):
         original = path.realpath(curdir)
         res_dirname=path.join(original,'res')
-        res_dirname = path.relpath(res_dirname, path.join(original,self.dirname) )
         if not path.exists(res_dirname):
             mkdir(res_dirname)
+        res_dirname = path.relpath(res_dirname, path.join(original,self.dirname) )
         return res_dirname
         
