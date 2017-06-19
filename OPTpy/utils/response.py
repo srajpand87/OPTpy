@@ -146,7 +146,7 @@ class RESPONSEflow(Workflow,MPITask):
             % (component,self.case))
 
         # sigma.xyz.spectrum_ab_20x20x20_15-spin
-        origin="{0}.{1}.spetrum_ab_{2}".format(resp_name,component,self.case)
+        origin="{0}.{1}.spectrum_ab_{2}".format(resp_name,component,self.case)
         dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp_name,component,self.case,self.nval,self.ncond)
         dest=path.join(self.res_dirname,dest)
 	self.runscript.append("cp {0} {1}".format(origin,dest))
