@@ -19,6 +19,7 @@ class RPMNSflow(Workflow,MPITask):
         nspinor=1 : Number of spinorial components
         kgrid_response : k-points for Tetrahedral integration
         wfn_fname : Name of wavefunction file (Abinit WFK file)
+        RPMNS : executable
         """
         super(RPMNSflow, self).__init__(**kwargs)
 
@@ -30,7 +31,7 @@ class RPMNSflow(Workflow,MPITask):
         self.nspinor = kwargs['nspinor']
         self.dirname = kwargs.pop('dirname','RPMNS')
         self.wfn_fname=kwargs['wfn_fname'][task-1]
-
+        self.rpmns=kwargs.pop('RPMNS','rpmns')
 
         # --- Write run.sh file ---
         # Define variables
@@ -45,7 +46,8 @@ class RPMNSflow(Workflow,MPITask):
             'LPMM':'.false.',
             'SCCP':'.false.',
             'lSCCP':'.false.',
-            'NVAL':"{}".format(self.nval_total)
+            'NVAL':"{}".format(self.nval_total),
+            'RPMNS':"{}".format(self.rpmns)
         }
         # Symbolic links:
         dest = 'WFK'
@@ -54,7 +56,7 @@ class RPMNSflow(Workflow,MPITask):
         self.runscript.append("echo $NVAL >.fnval\n")
         # Executable
         self.runscript.append("#Executable")
-        self.runscript.append("$MPIRUN rpmns $WFK $RHO $EM $PMN $RHOMM $LPMN $LPMM $SCCP $lSCCP")
+        self.runscript.append("$MPIRUN $RPMNS $WFK $RHO $EM $PMN $RHOMM $LPMN $LPMM $SCCP $lSCCP")
         # Rename output files:
         if ( rename ):
             self.runscript.append("cp eigen.d {0}\n".format(self.eigen_fname))

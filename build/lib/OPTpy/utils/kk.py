@@ -14,6 +14,10 @@ class KKflow(Workflow,IOTask):
         keyword arguments:
         structure : pymatgen.Structure
             Structure object containing information on the unit cell.
+        IBZ : executable
+        prefix : str, prefix for calculation
+        dirname : str, directory name
+        kgrid_response : int, array(3), k-point grid for response 
         """
         super(KKflow, self).__init__(**kwargs)
         self.structure = kwargs['structure']
@@ -21,12 +25,13 @@ class KKflow(Workflow,IOTask):
         self.dirname = kwargs.pop('dirname','KK')
         self.kgrid_response = kwargs['kgrid_response']
         self.kgrid="{}x{}x{}".format(self.kgrid_response[0],self.kgrid_response[1],self.kgrid_response[2])
+        self.ibz=kwargs.pop('IBZ','ibz')
 
         # --- Write run.sh file ---
 
         # Define variables:
         self.runscript.variables={
-            'IBZ' : 'ibz'}
+            'IBZ' : self.ibz}
         #
         # Copy files:
         #

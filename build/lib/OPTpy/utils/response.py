@@ -61,7 +61,9 @@ class RESPONSEflow(Workflow,MPITask):
         vnlkss=False : Take into accoung Vnl and KSS file (not working yet)
         option: 1 Full #Change name
         prefix : prefix for files in this calculation
-        smearvalue : Smearing value in eV 
+        smearvalue : Smearing value in eV
+        SET_INPUT_ALL : executable
+        TETRA_METHOD_ALL : executable 
         response : Response to calculate:
         ---------  choose a response ---------
         1  chi1----linear response           24 calChi1-layer linear response     
@@ -97,6 +99,8 @@ class RESPONSEflow(Workflow,MPITask):
         self.vnlkss = kwargs.pop('vnlkss','False')
         self.option = kwargs.pop('option',1)
         self.smearvalue = kwargs.pop('smearvalue',0.15)
+        self.set_input_all = kwargs.pop('SET_INPUT_ALL','set_input_all')
+        self.tetra_method_all = kwargs.pop('TETRA_METHOD_ALL','tetra_method_all')
 
         # Get case name:
         self.case=str(self.kgrid)+"_"+str(int(self.ecut))
@@ -106,8 +110,12 @@ class RESPONSEflow(Workflow,MPITask):
         # Get input file names:
         self.get_filenames(**kwargs)
 
-        # Write run.sh file:
-        
+        # --- Write run.sh file ---
+        # Define variables
+        self.runscript.variables={
+            'SET_INPUT_ALL' : self.set_input_all,
+            'TETRA_METHOD_ALL' : self.tetra_method_all
+        } 
         # Symbolic links: 
         dest='tetrahedra_{0}'.format(self.kgrid)
         self.update_link(self.tetrahedra_fname,dest)
@@ -132,7 +140,7 @@ class RESPONSEflow(Workflow,MPITask):
         self.runscript.append("executable=`echo \"sed -i -e 's/XXX/$nkpt/g' tmp_{0}\"`".format(self.case))
         self.runscript.append("eval $executable\n")
         # 
-        self.runscript.append("#Executable\nset_input_all tmp_{0} spectra.params_{0}".format(self.case))
+        self.runscript.append("#Executable\n$SET_INPUT_ALL tmp_{0} spectra.params_{0}".format(self.case))
         # Integrate each response at a time:
         resp_name=response_dict[self.response]
         self.runscript.append("#Integrate each component at a time:")
@@ -142,11 +150,11 @@ class RESPONSEflow(Workflow,MPITask):
             % (self.case,resp_name,component,self.case,self.case,self.case))
             self.runscript.append("sed s/Spectrum_%s/%s.%s.spectrum_ab_%s/ tmp1_%s > int_%s_%s"
             % (self.case,resp_name,component,self.case,self.case,component,self.case))
-            self.runscript.append("#Executable\ntetra_method_all int_%s_%s" 
+            self.runscript.append("#Executable\n$TETRA_METHOD_ALL int_%s_%s" 
             % (component,self.case))
 
         # sigma.xyz.spectrum_ab_20x20x20_15-spin
-        origin="{0}.{1}.spetrum_ab_{2}".format(resp_name,component,self.case)
+        origin="{0}.{1}.spectrum_ab_{2}".format(resp_name,component,self.case)
         dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp_name,component,self.case,self.nval,self.ncond)
         dest=path.join(self.res_dirname,dest)
 	self.runscript.append("cp {0} {1}".format(origin,dest))
