@@ -52,6 +52,12 @@ class RPMNSflow(Workflow,MPITask):
         # Symbolic links:
         dest = 'WFK'
         self.update_link(self.wfn_fname, dest)
+
+
+        # Load modules in run script:
+        if ( 'modules' in kwargs):
+            self.runscript.append(kwargs['modules'])
+
         # Add other lines:
         self.runscript.append("echo $NVAL >.fnval\n")
         # Executable

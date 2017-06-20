@@ -37,6 +37,10 @@ class KKflow(Workflow,IOTask):
         #
         self.update_link(self.pvectors_fname,'pvectors')
         self.update_link(self.symd_fname,'sym.d')
+
+        # Load modules in run script:
+        if ( 'modules' in kwargs):
+            self.runscript.append(kwargs['modules'])
         #
         # Extra lines:
         #

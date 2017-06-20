@@ -65,6 +65,11 @@ class AbinitTask(DFTTask, IOTask):
             self.kshift = kwargs.get('kshift', 3*[.0])
             self.kptopt = kwargs.get('kptopt',1)
             self.set_ngkpt(self.ngkpt,self.kshift)
+
+        # Load modules in run script:
+        if ( 'modules' in kwargs):
+            self.runscript.append(kwargs['modules'])
+
 #       Add additional lines in run script:
         if ( hasattr(self,'runlines' )) :
             self.runscript.append(self.runlines)

@@ -135,6 +135,10 @@ class RESPONSEflow(Workflow,MPITask):
         dest="pnn_{0}".format(self.case)
         self.update_link(self.pnn_fname,dest)
         #
+        # Load modules in run script:
+        if ( 'modules' in kwargs):
+            self.runscript.append(kwargs['modules'])
+
         self.runscript.append("#Find number of k-points and replace kMax value in files:")
         self.runscript.append("nkpt=`cat {0}.klist_{1} | wc  -l`".format(self.prefix,self.kgrid))
         self.runscript.append("executable=`echo \"sed -i -e 's/XXX/$nkpt/g' tmp_{0}\"`".format(self.case))
