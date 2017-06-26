@@ -64,6 +64,7 @@ class RESPONSEflow(Workflow,MPITask):
         smearvalue : Smearing value in eV
         SET_INPUT_ALL : executable
         TETRA_METHOD_ALL : executable 
+        RKRAMER : executable 
         response : Response to calculate:
         ---------  choose a response ---------
         1  chi1----linear response           24 calChi1-layer linear response     
@@ -101,6 +102,8 @@ class RESPONSEflow(Workflow,MPITask):
         self.smearvalue = kwargs.pop('smearvalue',0.15)
         self.set_input_all = kwargs.pop('SET_INPUT_ALL','set_input_all')
         self.tetra_method_all = kwargs.pop('TETRA_METHOD_ALL','tetra_method_all')
+        self.rkramer = kwargs.pop('RKRAMER','rkramer')
+        self.modules = kwargs.pop('modules','')
 
         # Get case name:
         self.case=str(self.kgrid)+"_"+str(int(self.ecut))
@@ -110,11 +113,20 @@ class RESPONSEflow(Workflow,MPITask):
         # Get input file names:
         self.get_filenames(**kwargs)
 
-        # --- Write run.sh file ---
+        # Define run file:
+        self.define_runfile_header()
+        lKK=False; lcp=True
+        if ( self.response == 21 ): #SHG
+            lKK=True; lcp=False
+        self.define_runfile(lKK,lcp)
+
+    def define_runfile_header(self):
+        # Define links, executables, etc. in run.sh file.
         # Define variables
         self.runscript.variables={
             'SET_INPUT_ALL' : self.set_input_all,
-            'TETRA_METHOD_ALL' : self.tetra_method_all
+            'TETRA_METHOD_ALL' : self.tetra_method_all,
+            'RKRAMER' : self.rkramer
         } 
         # Symbolic links: 
         dest='tetrahedra_{0}'.format(self.kgrid)
@@ -136,33 +148,69 @@ class RESPONSEflow(Workflow,MPITask):
         self.update_link(self.pnn_fname,dest)
         #
         # Load modules in run script:
-        if ( 'modules' in kwargs):
-            self.runscript.append(kwargs['modules'])
+        self.runscript.append(self.modules)
 
-        self.runscript.append("#Find number of k-points and replace kMax value in files:")
+        self.runscript.append("# Find number of k-points and replace kMax value in files:")
         self.runscript.append("nkpt=`cat {0}.klist_{1} | wc  -l`".format(self.prefix,self.kgrid))
         self.runscript.append("executable=`echo \"sed -i -e 's/XXX/$nkpt/g' tmp_{0}\"`".format(self.case))
         self.runscript.append("eval $executable\n")
-        # 
-        self.runscript.append("#Executable\n$SET_INPUT_ALL tmp_{0} spectra.params_{0}".format(self.case))
+
+    def define_runfile(self,lKK,lcp):
+        """
+            Adds lines to run.sh 
+
+            Arguments
+            lKK: logical, whether to call to Kramers-Kronig routines.
+            lcp: logical, whether to copy files at the end to the "res" directory
+        """
+        # --- define run.sh file ---
+        #
+        self.runscript.append("\n# ---- {} ---- #\n".format(response_dict[self.response]))
+ 
+        self.runscript.append("# Call to set_input")
+        self.runscript.append("$SET_INPUT_ALL tmp_{0} {0}".format(self.spectra_params_fname))
         # Integrate each response at a time:
         resp_name=response_dict[self.response]
-        self.runscript.append("#Integrate each component at a time:")
+        self.runscript.append("# Integrate each component at a time:")
         for component in self.components:
-            self.runscript.append("#Component %s" % (component)) 
+            self.runscript.append("# Component %s" % (component)) 
             self.runscript.append("sed s/Integrand_%s/%s.%s.dat_%s/ tmp_%s >tmp1_%s"
             % (self.case,resp_name,component,self.case,self.case,self.case))
             self.runscript.append("sed s/Spectrum_%s/%s.%s.spectrum_ab_%s/ tmp1_%s > int_%s_%s"
             % (self.case,resp_name,component,self.case,self.case,component,self.case))
-            self.runscript.append("#Executable\n$TETRA_METHOD_ALL int_%s_%s" 
-            % (component,self.case))
+            self.runscript.append("# Call to tetra_method")
+            self.runscript.append("$TETRA_METHOD_ALL int_{0}_{1}".format(component,self.case))
 
-        # sigma.xyz.spectrum_ab_20x20x20_15-spin
-        origin="{0}.{1}.spectrum_ab_{2}".format(resp_name,component,self.case)
-        dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp_name,component,self.case,self.nval,self.ncond)
-        dest=path.join(self.res_dirname,dest)
-	self.runscript.append("cp {0} {1}".format(origin,dest))
- 
+        if ( lKK ) :
+            # do Kramers-Kronig transformation
+            infname="{0}.{1}.spectrum_ab_{2}".format(resp_name,component,self.case)
+            outfname="{0}.{1}.kk.spectrum_ab_{2}".format(resp_name,component,self.case)
+            self.runscript.append("# Kramers-Kronig:")
+            self.runscript.append("$RKRAMER {0} {1} >log.kk"
+            .format(infname,outfname))
+
+        if ( lcp ):
+            # cp files to "res" directory 
+            if ( lKK ):
+                origin="{0}.{1}.spectrum_ab_{2}".format(resp_name,component,self.case)
+            else:
+                origin="{0}.{1}.kk.spectrum_ab_{2}".format(resp_name,component,self.case)
+            dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp_name,component,self.case,self.nval,self.ncond)
+            dest=path.join(self.res_dirname,dest)
+	    self.runscript.append("cp {0} {1}".format(origin,dest))
+
+        # If SHG, do extra processing:
+        if ( resp_name ==  "shg2L" ):
+            # paste and copy files, e.g., paste different contribution files for SHG:
+            self.runscript.append("\n# ---- Paste files ---- #")
+            file1="{0}.{1}.{2}.Nv{3}.Nc{4}".format("shg1L",component,self.case,self.nval,self.ncond)
+            file2="{0}.{1}.{2}.Nv{3}.Nc{4}".format("shg2L",component,self.case,self.nval,self.ncond)
+            dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format("shgL",component,self.case,self.nval,self.ncond)
+            self.runscript.append("paste {0} {1} > {2}".format(file1,file2,dest)) 
+            origin=dest             
+            dest=path.join(self.res_dirname,dest)
+	    self.runscript.append("cp {0} {1}".format(origin,dest))
+             
 #        self.runscript.append("rm -f tmp*\n")
 
 #       Write other files:
@@ -243,8 +291,8 @@ class RESPONSEflow(Workflow,MPITask):
 #       Get variables from input variables:
         n_component=len(self.components)
         resp_name=response_dict[self.response]
-#       spectra.params file:
-        filename=self.dirname+"/spectra.params_"+self.case
+        # spectra.params file:
+        filename=self.dirname+"/"+self.spectra_params_fname
         f=open(filename,"w")
         f.write("{0} {1}\n".format(n_component,self.static))
         for ii in range(n_component):
@@ -262,8 +310,6 @@ class RESPONSEflow(Workflow,MPITask):
             f.write("\n") 
         f.close()       
 
-
-
     def write(self):
         """ Compute optical responses using Tiniba executables"""
 
@@ -272,6 +318,23 @@ class RESPONSEflow(Workflow,MPITask):
         self.write_latm_input()
         self.write_spectra_params()
         self.write_opt_file()
+        # If response == 21 (SHG):
+        if ( self.response ==  21 ):
+            self.shg2()
+
+    def shg2(self):
+        # For SHG, we need the 1w1+1w2 plus the 2w contribution
+        # We now calculate the 2w contribution
+        # Redefine spectra_params_fname for shg2, and call again to
+        # self.write_run_file() and to write_spectra_params()!
+        self.response=22
+        # spectra_params_file for shg(2w):
+        spectra_params='spectra.params-2_{0}'.format(self.case)
+        self.spectra_params_fname=spectra_params
+        self.write_spectra_params()
+        lKK=True; lcp=False
+        self.define_runfile(lKK,lcp)
+        super(MPITask, self).write()
 
     def get_filenames(self,**kwargs):
 
@@ -305,6 +368,10 @@ class RESPONSEflow(Workflow,MPITask):
         pnn_fname='pnn_{0}'.format(self.case)
         pnn_fname=path.join(original, pnn_fname) 
         self.pnn_fname = kwargs.pop('pnn_fname',pnn_fname)
+        
+        # spectra_params_fname:
+        spectra_params='spectra.params_{0}'.format(self.case)
+        self.spectra_params_fname=spectra_params
 
     @property
     def res_dirname(self):
