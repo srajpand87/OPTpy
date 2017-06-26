@@ -168,7 +168,7 @@ class RESPONSEflow(Workflow,MPITask):
         self.runscript.append("\n# ---- {} ---- #\n".format(response_dict[self.response]))
  
         self.runscript.append("# Call to set_input")
-        self.runscript.append("$SET_INPUT_ALL tmp_{0} {1}".format(self.spectra_params_fname,self.case))
+        self.runscript.append("$SET_INPUT_ALL tmp_{1} {0}".format(self.spectra_params_fname,self.case))
         # Integrate each response at a time:
         resp_name=response_dict[self.response]
         self.runscript.append("# Integrate each component at a time:")
