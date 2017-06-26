@@ -203,9 +203,12 @@ class RESPONSEflow(Workflow,MPITask):
         if ( resp_name ==  "shg2L" ):
             # paste and copy files, e.g., paste different contribution files for SHG:
             self.runscript.append("\n# ---- Paste files ---- #")
-            file1="{0}.{1}.{2}.Nv{3}.Nc{4}".format("shg1L",component,self.case,self.nval,self.ncond)
-            file2="{0}.{1}.{2}.Nv{3}.Nc{4}".format("shg2L",component,self.case,self.nval,self.ncond)
-            dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format("shgL",component,self.case,self.nval,self.ncond)
+            resp1='shg1L' 
+            resp2='shg2L'
+            resp_total='shgL'
+            file1="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp1,component,self.case,self.nval,self.ncond)
+            file2="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp2,component,self.case,self.nval,self.ncond)
+            dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp_total,component,self.case,self.nval,self.ncond)
             self.runscript.append("paste {0} {1} > {2}".format(file1,file2,dest)) 
             origin=dest             
             dest=path.join(self.res_dirname,dest)
