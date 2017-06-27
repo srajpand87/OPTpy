@@ -211,7 +211,8 @@ class RESPONSEflow(Workflow,MPITask):
             dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp_total,component,self.case,self.nval,self.ncond)
             self.runscript.append("paste {0} {1} > {2}".format(file1,file2,"tmp.SHL"))
             # Get only some columns:
-            self.runscript.append("awk '{print $1,$2,$3,$5,$6}' tmp.SHL > {}".format(dest))
+            #self.runscript.append("awk \'\{print $1,$2,$3,$5,$6\}\' tmp.SHL > {0}".format(dest))
+            self.runscript.append("awk '{{print $1,$2,$3,$5,$6}}' tmp.SHL > {0}".format(dest))
             # Copy files to final destination 
             origin=dest             
             dest=path.join(self.res_dirname,dest)
