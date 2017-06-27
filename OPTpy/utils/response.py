@@ -186,7 +186,7 @@ class RESPONSEflow(Workflow,MPITask):
             infname="{0}.{1}.spectrum_ab_{2}".format(resp_name,component,self.case)
             outfname="{0}.{1}.kk.spectrum_ab_{2}".format(resp_name,component,self.case)
             self.runscript.append("# Kramers-Kronig:")
-            self.runscript.append("$RKRAMER 2 {0} {1} >log.kk"
+            self.runscript.append("$RKRAMER 1 {0} {1} >log.kk"
             .format(infname,outfname))
 
         if ( lcp ):
