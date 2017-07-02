@@ -168,7 +168,7 @@ class RESPONSEflow(Workflow,MPITask):
         self.runscript.append("\n# ---- {} ---- #\n".format(response_dict[self.response]))
  
         self.runscript.append("# Call to set_input")
-        self.runscript.append("$SET_INPUT_ALL tmp_{0} {0}".format(self.spectra_params_fname))
+        self.runscript.append("$SET_INPUT_ALL tmp_{1} {0}".format(self.spectra_params_fname,self.case))
         # Integrate each response at a time:
         resp_name=response_dict[self.response]
         self.runscript.append("# Integrate each component at a time:")
@@ -186,7 +186,7 @@ class RESPONSEflow(Workflow,MPITask):
             infname="{0}.{1}.spectrum_ab_{2}".format(resp_name,component,self.case)
             outfname="{0}.{1}.kk.spectrum_ab_{2}".format(resp_name,component,self.case)
             self.runscript.append("# Kramers-Kronig:")
-            self.runscript.append("$RKRAMER {0} {1} >log.kk"
+            self.runscript.append("$RKRAMER 1 {0} {1} >log.kk"
             .format(infname,outfname))
 
         if ( lcp ):
@@ -203,10 +203,17 @@ class RESPONSEflow(Workflow,MPITask):
         if ( resp_name ==  "shg2L" ):
             # paste and copy files, e.g., paste different contribution files for SHG:
             self.runscript.append("\n# ---- Paste files ---- #")
-            file1="{0}.{1}.{2}.Nv{3}.Nc{4}".format("shg1L",component,self.case,self.nval,self.ncond)
-            file2="{0}.{1}.{2}.Nv{3}.Nc{4}".format("shg2L",component,self.case,self.nval,self.ncond)
-            dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format("shgL",component,self.case,self.nval,self.ncond)
-            self.runscript.append("paste {0} {1} > {2}".format(file1,file2,dest)) 
+            resp1='shg1L' 
+            resp2='shg2L'
+            resp_total='shgL'
+            file1="{0}.{1}.kk.spectrum_ab_{2}".format(resp1,component,self.case)
+            file2="{0}.{1}.kk.spectrum_ab_{2}".format(resp2,component,self.case)
+            dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp_total,component,self.case,self.nval,self.ncond)
+            self.runscript.append("paste {0} {1} > {2}".format(file1,file2,"tmp.SHL"))
+            # Get only some columns:
+            #self.runscript.append("awk \'\{print $1,$2,$3,$5,$6\}\' tmp.SHL > {0}".format(dest))
+            self.runscript.append("awk '{{print $1,$2,$3,$5,$6}}' tmp.SHL > {0}".format(dest))
+            # Copy files to final destination 
             origin=dest             
             dest=path.join(self.res_dirname,dest)
 	    self.runscript.append("cp {0} {1}".format(origin,dest))
