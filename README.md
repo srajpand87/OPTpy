@@ -49,7 +49,8 @@ See the file INSTALL for more information about configuring
 the module's default parameters.
 
 
-Here are some specific examples on how to install in Lawrencium and NERSC clusters:
+Here are some specific examples on how to install in Lawrencium and NERSC clusters.
+Last update (July 2017)
 
 **Lawrencium**
 
@@ -76,7 +77,24 @@ pip install pymatgen
 python setup.py install
 
 
+**NERSC**  
+(Benjamin M. Fregoso)
+NERSC is no longer using pip, so better use conda.  
 
+1. Create a virtual envirnment in $HOME/.conda  
+conda create -n myenv       
+source activate myenv        
+
+2. Install numpy and pymatgen
+conda install numpy            
+git clone  https://github.com/materialsproject/pymatgen.git     
+cd pymatgen  
+python setup.py install    
+
+3. Install OPTpy  
+git clone  https://github.com/trangel/OPTpy.git  
+cd OPTpy  
+python setup.py install   
 
 License
 -------
