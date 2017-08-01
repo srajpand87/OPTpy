@@ -215,7 +215,7 @@ class OPTflow(Workflow):
             wfn_fnames.append(wfn_fname)
 
             #fnames = dict(wfn_fname = os.path.join('../',self.wfntask.wfn_fname))
-            return fnames
+            return wfn_fnames
         else : 
             # Divide calculation by nproc:
             self.ntask=self.nproc
