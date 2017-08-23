@@ -89,6 +89,8 @@ source activate myenv
 2. Install numpy and pymatgen
 conda install numpy            
 conda install --channel matsci pymatgen
+pip install pyyaml   
+pip install pyspglib   
 
 3. Install OPTpy  
 git clone  https://github.com/trangel/OPTpy.git  
