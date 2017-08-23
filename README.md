@@ -83,14 +83,12 @@ NERSC is no longer using pip, so better use conda.
 
 1. Create a virtual envirnment in $HOME/.conda  
 module load python/2.7-anaconda    
-conda create -n myenv       
+conda create -n myenv python=2.7    
 source activate myenv        
 
 2. Install numpy and pymatgen
 conda install numpy            
-git clone  https://github.com/materialsproject/pymatgen.git     
-cd pymatgen  
-python setup.py install    
+conda install --channel matsci pymatgen
 
 3. Install OPTpy  
 git clone  https://github.com/trangel/OPTpy.git  
