@@ -82,6 +82,7 @@ python setup.py install
 NERSC is no longer using pip, so better use conda.  
 
 1. Create a virtual envirnment in $HOME/.conda  
+module load python/2.7-anaconda    
 conda create -n myenv       
 source activate myenv        
 
