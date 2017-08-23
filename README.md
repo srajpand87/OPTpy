@@ -29,7 +29,7 @@ Requirements
 
 The following software and modules are required to use OPTpy.
 
-  * python 2.7 required (Python 3 not supported at the moment) 
+  * python >= 2.7    
   * numpy 1.6+      (http://www.scipy.org/)
   * pymatgen 3.0+   (http://pymatgen.org/)
   * Tiniba-v3+ (https://github.com/bemese/tiniba)
@@ -82,8 +82,8 @@ python setup.py install
 NERSC is no longer using pip, so better use conda.  
 
 1. Create a virtual envirnment in $HOME/.conda  
-module load python/2.7-anaconda    
-conda create -n myenv python=2.7    
+module load python/3.6-anaconda-4.4    
+conda create -n myenv python=3.6  
 source activate myenv        
 
 2. Install numpy and pymatgen
