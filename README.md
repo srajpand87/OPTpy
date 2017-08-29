@@ -68,12 +68,14 @@ source venv/bin/activate
         — to deactivate type:
                 deactivate
 
-3. Install pymatgen  
+3. Upgrade packages, otherwise you get errors:   
+pip install --upgrade setuptools    
 pip install —upgrade pip
-* This upgrades pip *  
+
+4. Install pymatgen  
 pip install pymatgen 
 
-4. Install OPTpy, under the OPTpy directory:  
+5. Install OPTpy, under the OPTpy directory:  
 python setup.py install
 
 
