@@ -55,24 +55,24 @@ Last update (July 2017)
 **Lawrencium**
 
 1. Load python modules  
-module swap intel gcc
-module load python/2.7.8
-module load numpy
-module load virtualenv
+module swap intel gcc   
+module load python/2.7.8   
+module load virtualenv   
   
-2. Make a virtual environment
-mkdir venv
-virtualenv venv
-        — this folder contains bin, include, lib
-source venv/bin/activate
-        — to deactivate type:
-                deactivate
+2. Make a virtual environment   
+mkdir venv   
+virtualenv venv   
+        — this folder contains bin, include, lib   
+source venv/bin/activate   
+        — to deactivate type:   
+                deactivate    
 
 3. Upgrade packages, otherwise you get errors:   
 pip install --upgrade setuptools    
-pip install —upgrade pip
+pip install --upgrade pip
 
-4. Install pymatgen  
+4. Install numpy numpy pymatgen  
+pip install numpy
 pip install pymatgen 
 
 5. Install OPTpy, under the OPTpy directory:  
