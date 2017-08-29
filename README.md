@@ -76,7 +76,8 @@ pip install numpy
 pip install pymatgen 
 
 5. Install OPTpy, under the OPTpy directory:  
-python setup.py install
+svn checkout https://github.com/trangel/OPTpy.git    
+python setup.py install   
 
 
 **NERSC**  
