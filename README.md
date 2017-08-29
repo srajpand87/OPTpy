@@ -68,11 +68,11 @@ source venv/bin/activate
                 deactivate    
 
 3. Upgrade packages, otherwise you get errors:   
-pip install --upgrade setuptools    
 pip install --upgrade pip
+pip install --upgrade setuptools    
 
 4. Install numpy numpy pymatgen  
-pip install numpy
+pip install numpy   
 pip install pymatgen 
 
 5. Install OPTpy, under the OPTpy directory:  
