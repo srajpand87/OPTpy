@@ -1,7 +1,7 @@
 
 A python module to operate <a href="https://github.com/bemese/tiniba">Tiniba</a>.
 
-See [tutorial](https://github.com/trangel/OPTpy/TUTORIAL.md)
+See [tutorial](https://github.com/trangel/OPTpy/blob/master/TUTORIAL.md)
 
 Documentation
 -------------
