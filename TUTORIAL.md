@@ -6,7 +6,7 @@ A python module to operate <a href="https://github.com/bemese/tiniba">Tiniba</a>
 
 ## Basics   
 To start using OPTpy you need to go first to the basics of ABINIT.   
-Please go to the basic lessons (1 to 4) on the (ABINIT web site)[http://www.abinit.org] first.   
+Please go to the basic lessons (1 to 4) on the [ABINIT web site](http://www.abinit.org) first.   
 
 ## Second Harmonic Generation in GaAs  
 
@@ -14,7 +14,9 @@ For this example we will need:
 1. pseudopotential files
 2. structure data   
 
-1. Please download the following files:   
+Please download the following files:   
 * [Gaas.cif](https://github.com/trangel/OPTpy/blob/master/examples/data/structures/GaAs.cif)
 * [31-Ga.pspnc](https://github.com/trangel/OPTpy/blob/master/examples/data/pseudos/31-Ga.pspnc)
 * [33-As.pspnc](https://github.com/trangel/OPTpy/blob/master/examples/data/pseudos/31-Ga.pspnc)
+
+
