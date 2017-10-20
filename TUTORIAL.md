@@ -14,9 +14,10 @@ For this example we will need:
 1. pseudopotential files
 2. structure data   
 
-Please download the following files:   
-* [Gaas.cif](https://github.com/trangel/OPTpy/blob/master/examples/data/structures/GaAs.cif)
-* [31ga.3.hgh](https://github.com/trangel/OPTpy/blob/master/examples/data/pseudos/31ga.3.hgh)
-* [33as.5.hgh](https://github.com/trangel/OPTpy/blob/master/examples/data/pseudos/31ga.3.hgh)
+Please create a new directory, and download the following files:   
 
-
+* [Gaas.cif](https://github.com/trangel/OPTpy/blob/master/examples/data/structures/GaAs.cif): Structure file, in cif format (from the Materials Project database).   
+* [31ga.3.hgh](https://github.com/trangel/OPTpy/blob/master/examples/data/pseudos/31ga.3.hgh):   HGH pseudopotential for Ga.   
+* [33as.5.hgh](https://github.com/trangel/OPTpy/blob/master/examples/data/pseudos/31ga.3.hgh): HGH pseudopotential for As.   
+* [GaAs.py](https://github.com/trangel/OPTpy/blob/master/examples/flows/GaAs.py): 
+OPTpy input file for SHG in GaAs.  
