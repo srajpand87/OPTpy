@@ -1,3 +1,5 @@
 OPTpy.egg-info
 
-*.egg
+.*
+*~
+*.egg*

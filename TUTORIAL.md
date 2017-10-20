@@ -1,9 +1,8 @@
 
 A python module to operate <a href="https://github.com/bemese/tiniba">Tiniba</a>.
 
-See [tutorial](https://github.com/trangel/OPTpy.git/TUTORIAL.md)
 
-Documentation
+TUTORIAL
 -------------
 
 This repository is a python script with automatic workflows to compute optical responses of materials.
