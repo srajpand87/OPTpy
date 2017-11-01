@@ -13,7 +13,7 @@ flow = OPTflow(
     #
     prefix = 'gaas',      # Root name for files required by Tiniba
     # Structure from file:
-    structure=Structure.from_file('.GaAs.cif'),
+    structure=Structure.from_file('GaAs.cif'),
 
     #
     # Pseudopotentials:
