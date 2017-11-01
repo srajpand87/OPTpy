@@ -19,7 +19,7 @@ flow = OPTflow(
     # Pseudopotentials:
     #
     pseudo_dir = './',
-    pseudos = ['31-Ga.pspnc', '33-As.pspnc'],
+    pseudos = ['31ga.3.hgh', '33as.5.hgh'],
 
     ecut = 15.0,          # Cutoff energy for wavefunctions
     nspinor = 2,          # Number of spinorial components
