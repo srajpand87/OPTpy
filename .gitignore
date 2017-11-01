@@ -3,3 +3,6 @@ OPTpy.egg-info
 .*
 *~
 *.egg*
+build
+dist
+OPTpy.egg-info
