@@ -18,7 +18,7 @@ Please create a new directory, and download the following files:
 
 * [Gaas.cif](https://github.com/trangel/OPTpy/tree/master/examples/data/structures/GaAs.cif): Structure file, in cif format (from the Materials Project database).   
 * [31ga.3.hgh](https://github.com/trangel/OPTpy/tree/master/examples/data/pseudos/31ga.3.hgh):   HGH pseudopotential for Ga.   
-* [33as.5.hgh](https://github.com/trangel/OPTpy/tree/master/examples/data/pseudos/31ga.3.hgh): HGH pseudopotential for As.   
+* [33as.5.hgh](https://github.com/trangel/OPTpy/tree/master/examples/data/pseudos/33as.5.hgh): HGH pseudopotential for As.   
 * [GaAs.py](https://github.com/trangel/OPTpy/tree/master/examples/flows/GaAs.py): 
 OPTpy input file for SHG in GaAs. 
 
