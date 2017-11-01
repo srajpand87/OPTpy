@@ -28,7 +28,19 @@ Please create a new directory, and download the following files:
 OPTpy input file for SHG in GaAs 
 
 You should have in a single directory:    
-```
+```ruby
 ls   
 33as.5.hgh GaAs.py 31ga.3.hgh GaAs.cif
+```
+
+To run OPTpy simply do:   
+```ruby
+python GaAs.py
+```
+
+This should create:
+```ruby
+ls
+33as.5.hgh GaAs.py    run.sh
+01-Density 03-RPMNS   31ga.3.hgh GaAs.cif
 ```
