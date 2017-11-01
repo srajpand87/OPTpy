@@ -3,11 +3,16 @@ A python module to operate <a href="https://github.com/bemese/tiniba">Tiniba</a>
 
 [Installing OPTpy](https://github.com/trangel/OPTpy/blob/master/README.md)
 
+## Contents 
+1. [Basics](#basics)
+2. [SHG in GaAs](#shg_gaas)
 
+<a id='basics'></a>
 ## Basics   
 To start using OPTpy you need to go first to the basics of ABINIT.   
 Please go through the basic lessons (1 to 4) on the [ABINIT web site](http://www.abinit.org) first.   
 
+<a id='shg_gaas'></a>
 ## Second Harmonic Generation in GaAs  
 
 For this example we will need:   
@@ -22,4 +27,8 @@ Please create a new directory, and download the following files:
 * [GaAs.py](https://raw.githubusercontent.com/trangel/OPTpy/master/examples/flows/GaAs.py): 
 OPTpy input file for SHG in GaAs 
 
-[Under construction] 
+You should have in a single directory:    
+```
+ls   
+33as.5.hgh GaAs.py 31ga.3.hgh GaAs.cif
+```
