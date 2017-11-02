@@ -1,6 +1,9 @@
 # Install OPTpy
 
-1. [Requirements](#requirements)
+1. [Requirements](#requirements)   
+2. [Quick install](#quick-install)   
+3. [Install at Lawrencium](#lawrencium)   
+4. [Install at Cori, NERSC](#cori)   
 
 <a id='requirements'></a>
 ## Requirements
