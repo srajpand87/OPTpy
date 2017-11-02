@@ -32,31 +32,40 @@ Last update (July 2017)
 ## Lawrencium cluster (LBNL)
 
 1. Load python modules  
+```bash
 module swap intel gcc   
 module load python/2.7.8   
 module load virtualenv   
-  
+```
+
 2. Make a virtual environment   
+```bash
 mkdir venv   
 virtualenv venv   
         — this folder contains bin, include, lib   
 source venv/bin/activate   
         — to deactivate type:   
                 deactivate    
+```
 
 3. Upgrade packages, otherwise you get errors:   
+```bash
 pip install --upgrade pip
 pip install --upgrade setuptools    
+```
 
 4. Install numpy numpy pymatgen  
+```bash
 pip install numpy   
 pip install pymatgen 
+```
 
 5. Install OPTpy, under the OPTpy directory:  
+```bash
 svn checkout https://github.com/trangel/OPTpy.git   
 cd OPTpy.git/trunk    
 python setup.py install --force     
-
+```
 
 <a id='cori'></a>
 ## Cori cluster (NERSC)
@@ -64,20 +73,23 @@ python setup.py install --force
 NERSC is no longer using pip, so better use conda.  
 
 1. Create a virtual envirnment in $HOME/.conda  
-```
+```bash
 module load python/2.7-anaconda 
 conda create -n myenv python=2.7  
 source activate myenv        
 ```
 
 2. Install numpy and pymatgen
+```bash
 conda install numpy            
 conda install --channel matsci pymatgen
 pip install pyyaml   
 pip install pyspglib   
+```
 
 3. Install OPTpy  
+```bash
 git clone  https://github.com/trangel/OPTpy.git  
 cd OPTpy  
 python setup.py install   
-
+```
