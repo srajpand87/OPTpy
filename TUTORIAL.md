@@ -45,3 +45,6 @@ ls
 01-Density 03-RPMNS   31ga.3.hgh GaAs.cif   res        symmetries
 ```
 
+Let's quickly describe the files:   
+
+
