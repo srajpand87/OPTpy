@@ -41,11 +41,15 @@ module load virtualenv
 2. Make a virtual environment   
 ```bash
 mkdir venv   
-virtualenv venv   
-        — this folder contains bin, include, lib   
-source venv/bin/activate   
-        — to deactivate type:   
-                deactivate    
+virtualenv venv  
+``` 
+This folder contains bin, include, lib   
+```bash
+source venv/bin/activate  
+```
+To deactivate type:  
+```bash 
+deactivate    
 ```
 
 3. Upgrade packages, otherwise you get errors:   
