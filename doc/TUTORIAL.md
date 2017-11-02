@@ -1,7 +1,4 @@
-
-A python module to operate <a href="https://github.com/bemese/tiniba">Tiniba</a>.
-
-[Installing OPTpy](https://github.com/trangel/OPTpy/blob/master/README.md)
+# Tutorial
 
 ## Contents 
 1. [Basics](#basics)

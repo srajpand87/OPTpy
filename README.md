@@ -20,7 +20,7 @@ Below we show an example of calculation obtained with this script.
 <div class="image">
 <a href="url"><img src="https://github.com/trangel/OPTpy/blob/master/doc/figures/GeS-responses.png" height="300" ></a><br clear="all" />
 <div>Optical spectra calculated with OPTpy and Tiniba.<br>
-<small> Shift current (top) and linear absorption (bottom).
+<small> Shift current (top) and linear absorption (bottom).   
 See <a href="https://arxiv.org/abs/1610.06589">Rangel, M. Fregoso et al., Phys. Rev. Lett. 119, 067402 (2017)</a>
 </small>
 </div>
