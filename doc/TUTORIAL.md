@@ -44,12 +44,23 @@ ls
 
 Let's describe the content of the directories:  
  
-###  00-KK       
-* **run.sh** script to run **ibz** executable    
-* **ibz** sets up special k-point list for tetrahedrum integration.    
-It needs as input
-* **pvectors** contains lattice cell parameters    
-* **sym.d** symmetry matrices of the crystal    
+###  00-KK 
+
+#### Scripts         
+* **run.sh**: script to run **ibz** executable    
+* **ibz**: sets up a special k-point list for tetrahedrum integration.    
+
+#### Input files   
+It needs as input:
+* **pvectors**: contains lattice cell parameters    
+* **sym.d**: symmetry matrices of the crystal    
 Note the two files above are created by OPTpy and linked via run.sh.    
 
+#### Output files   
+mv kpoints.reciprocal /Users/rangel/cases/GaAs/gaas.klist_4x4x4
+mv kpoints.cartesian /Users/rangel/cases/GaAs/symmetries/gaas.kcartesian_4x4x4
+mv tetrahedra /Users/rangel/cases/GaAs/symmetries/tetrahedra_4x4x4
+mv Symmetries.Cartesian /Users/rangel/cases/GaAs/symmetries/Symmetries.Cartesian_4x4x4
 
+### 01-Density   
+*
