@@ -56,10 +56,8 @@ Let's describe the content of the directories:
 Note the two files above are created by OPTpy and linked via run.sh.    
 
 #### Output files   
-gaas.klist_4x4x4    
-symmetries/gaas.kcartesian_4x4x4
-symmetries/tetrahedra_4x4x4
-symmetries/Symmetries.Cartesian_4x4x4
-
+* **gaas.klist_4x4x4**: list of special k-points for tetrahedrum integration for a 4x4x4 grid in reduced coordinates    
+* **symmetries/gaas.kcartesian_4x4x4**: same as above but in Cartesian coordinates   
+* **symmetries/tetrahedra_4x4x4**: definition of tetrahedra for integration    
+* **symmetries/Symmetries.Cartesian_4x4x4**: symmetries in Cartesian coordinates       
 ### 01-Density   
-*
