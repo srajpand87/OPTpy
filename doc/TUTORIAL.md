@@ -42,6 +42,13 @@ ls
 01-Density 03-RPMNS   31ga.3.hgh GaAs.cif   res        symmetries
 ```
 
-Let's quickly describe the files:   
+Let's describe the content of the directories:  
+ 
+###  00-KK       
+* **run.sh** script to run **ibz** executable    
+**ibz** sets up special k-point list for tetrahedrum integration.    
+It needs as input:    
+**pvectors** contains lattice cell parameters    
+**sym.d** symmetry matrices of the crystal    
 
 
