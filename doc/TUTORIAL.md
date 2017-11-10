@@ -46,9 +46,10 @@ Let's describe the content of the directories:
  
 ###  00-KK       
 * **run.sh** script to run **ibz** executable    
-**ibz** sets up special k-point list for tetrahedrum integration.    
-It needs as input:    
-**pvectors** contains lattice cell parameters    
-**sym.d** symmetry matrices of the crystal    
+* **ibz** sets up special k-point list for tetrahedrum integration.    
+It needs as input
+* **pvectors** contains lattice cell parameters    
+* **sym.d** symmetry matrices of the crystal    
+Note the two files above are created by OPTpy and linked via run.sh.    
 
 
