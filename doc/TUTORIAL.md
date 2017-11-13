@@ -45,9 +45,12 @@ ls
 Let's describe the content of the directories:  
  
 ###  00-KK 
+Set up k-point grid for tetrahedra integration   
 
 #### Scripts         
 * **run.sh**: script to run **ibz** executable    
+
+#### Executable
 * **ibz**: sets up a special k-point list for tetrahedrum integration.    
 
 #### Input files   
@@ -60,4 +63,21 @@ Note the two files above are created by OPTpy and linked via run.sh.
 * **symmetries/gaas.kcartesian_4x4x4**: same as above but in Cartesian coordinates   
 * **symmetries/tetrahedra_4x4x4**: definition of tetrahedra for integration    
 * **symmetries/Symmetries.Cartesian_4x4x4**: symmetries in Cartesian coordinates       
-### 01-Density   
+
+### 01-Density  
+Ground state calculation with ABINIT    
+
+#### Scripts         
+* **run.sh**: main bash script to run ABINIT    
+
+#### Executable
+ABINIT   
+
+#### Input files
+* **gaas.files**: ABINIT *files* file   
+* **gaas.in**: ABINIT input file     
+* **input_data**: directory for eventual input files for ABINIT (empty in this case)    
+* **tmp_data**: directory to store temporary files while executing ABINIT    
+ 
+#### Output files   
+* **out_data**: directory to store big output files (wavefunctions, density, etc...) from ABINIT    
