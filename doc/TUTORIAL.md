@@ -34,15 +34,20 @@ To run OPTpy simply do:
 ```bash
 python GaAs.py
 ```
+Then run ABINIT and Tiniba with:   
+```bash
+bash run.sh   
+```
 
 This should create:
 ```bash
 ls
-00-KK      02-WFN     04-RESP    33as.5.hgh GaAs.py    run.sh
-01-Density 03-RPMNS   31ga.3.hgh GaAs.cif   res        symmetries
+00-KK	    03-RPMNS	33as.5.hgh  gaas.klist_4x4x4  symmetries
+01-Density  04-RESP	GaAs.cif    res
+02-WFN	    31ga.3.hgh	GaAs.py     run.sh
 ```
 
-Let's describe the content of the directories:  
+Let's describe the files and directories:  
 * [00-KK](#kk)    
 * [01-Density](#density)   
 * [02-WFN](#wfn)    
@@ -86,5 +91,16 @@ ABINIT
 * **input_data**: directory for eventual input files for ABINIT (empty in this case)    
 * **tmp_data**: directory to store temporary files while executing ABINIT    
  
-#### Output files   
-* **out_data**: directory to store big output files (wavefunctions, density, etc...) from ABINIT    
+#### Output files  
+* **gaas.out**: output text file from ABINIT    
+* **out_data**: directory to store ground-state density from ABINIT   
+ 
+<a id='wfn'></a>
+### 02-WFN     
+Wavefuncitons calculation with ABINIT    
+Scripts, exectuable, and input file conventions are the same as [above](#density).    
+
+#### Output files  
+* **gaas.out**: output text file from ABINIT    
+* **out_data**: directory to store wavefunctions from ABINIT    
+ 

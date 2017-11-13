@@ -28,7 +28,7 @@ flow = OPTflow(
     # Variables for density:
     #
     ngkpt = [4,4,4],      # k-point grid for density
-    kshift = [.5,.5,.5],  # k-point shift for density
+    kshift = [[.5,.5,.5],[.5,0,0],[0,.5,0],[0,0,.5]],  # k-point shift for density
 
     #
     # Variables for momentum matrix elements and responses:
