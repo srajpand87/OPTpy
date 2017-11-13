@@ -98,9 +98,54 @@ ABINIT
 <a id='wfn'></a>
 ### 02-WFN     
 Wavefuncitons calculation with ABINIT    
-Scripts, exectuable, and input file conventions are the same as [above](#density).    
+Scripts, exectuable, and input file conventions are the same as in [01-Density](#density).    
 
 #### Output files  
 * **gaas.out**: output text file from ABINIT    
 * **out_data**: directory to store wavefunctions from ABINIT    
+
+<a id='rpmns'></a> 
+### 03-RPMNS   
+Matrix elements with TINIBA       
+
+#### Scripts         
+* **run.sh**: main bash script to run TINIBA    
+
+#### Executable
+* **rpmns**: constructs momentum matrix elements from ABINIT wavefunctions      
+
+#### Input files
+* **WFK**: ABINIT wavefunctions file   
  
+#### Output files  
+* **eigen_4x4x4_15-spin**: eigenvalues    
+* **pmn_4x4x4_15-spin**: momentum matrix elements   
+* **pnn_4x4x4_15-spin**
+
+<a id='resp'></a>
+### 04-RESP   
+Responses with TINIBA         
+
+#### Scripts         
+* **run.sh**: main bash script to run TINIBA
+
+#### Executables
+* **set_input_all**: prepares input files for tetrahedra integration   
+* **tetra_method_all**: performs integration with tetrahedra method   
+* **rkramer**: Performs Kramers-Kronig transformation to get imaginary part of spectrum from the real part    
+
+
+#### Input files
+This uses most output files obtained in 03 and 00 above    
+See first lines of bash.sh    
+```bash
+ln -nfs ../symmetries/tetrahedra_4x4x4 tetrahedra_4x4x4
+ln -nfs ../gaas.klist_4x4x4 gaas.klist_4x4x4
+ln -nfs ../symmetries/Symmetries.Cartesian_4x4x4 Symmetries.Cartesian
+ln -nfs ../eigen_4x4x4_15-spin eigen_4x4x4_15-spin
+ln -nfs ../pmn_4x4x4_15-spin pmn_4x4x4_15-spin
+ln -nfs ../pnn_4x4x4_15-spin pnn_4x4x4_15-spin
+```
+
+#### Output files   
+* **res/chi1.zz.4x4x4_15-spin.Nv8.Nc8**: linear response along the zz direction (4x4x4 grid, energy cutoff 15 Hartree, using spinors, transitions over 8 valence and 8 conduction bands)    
