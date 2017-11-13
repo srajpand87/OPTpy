@@ -1,5 +1,6 @@
 OPTpy.egg-info
 
+*.swp
 .*
 *~
 *.egg*

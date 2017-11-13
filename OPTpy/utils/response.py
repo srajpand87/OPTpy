@@ -30,6 +30,9 @@ response_dict={
 }
 component_dict={ 'x' : 1, 'y' : 2, 'z' : 3 }
 
+# Responses that require a kramers kronig transformation:   
+list_kk=[1,21]
+
 class RESPONSEflow(Workflow,MPITask):
     def __init__(self,**kwargs):
         """ 
@@ -116,8 +119,10 @@ class RESPONSEflow(Workflow,MPITask):
         # Define run file:
         self.define_runfile_header()
         lKK=False; lcp=True
-        if ( self.response == 21 ): #SHG
-            lKK=True; lcp=False
+
+        # If Kramers Kronik is required add the KK lines in run.sh   
+        if ( self.response in list_kk ): 
+            lKK=True; lcp=True
         self.define_runfile(lKK,lcp)
 
     def define_runfile_header(self):
@@ -192,9 +197,9 @@ class RESPONSEflow(Workflow,MPITask):
         if ( lcp ):
             # cp files to "res" directory 
             if ( lKK ):
-                origin="{0}.{1}.spectrum_ab_{2}".format(resp_name,component,self.case)
-            else:
                 origin="{0}.{1}.kk.spectrum_ab_{2}".format(resp_name,component,self.case)
+            else:
+                origin="{0}.{1}.spectrum_ab_{2}".format(resp_name,component,self.case)
             dest="{0}.{1}.{2}.Nv{3}.Nc{4}".format(resp_name,component,self.case,self.nval,self.ncond)
             dest=path.join(self.res_dirname,dest)
 	    self.runscript.append("cp {0} {1}".format(origin,dest))
