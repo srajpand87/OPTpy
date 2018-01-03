@@ -5,3 +5,4 @@ from .kk import *
 from .rpmns import *
 from .response import *
 from .merge import *
+from .jobs_lrc import *
