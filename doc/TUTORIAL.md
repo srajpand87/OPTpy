@@ -148,4 +148,10 @@ ln -nfs ../pnn_4x4x4_15-spin pnn_4x4x4_15-spin
 ```
 
 #### Output files   
-* **res/chi1.zz.4x4x4_15-spin.Nv8.Nc8**: linear response along the zz direction (4x4x4 grid, energy cutoff 15 Hartree, using spinors, transitions over 8 valence and 8 conduction bands)    
+* **res/shgL.xyz.4x4x4_15-spin.Nv8.Nc8**: SHG along the xyz direction (4x4x4 grid, energy cutoff 15 Hartree, using spinors, transitions over 8 valence and 8 conduction bands)    
+Note that the k-point grid is too small (underconvergence).    
+
+To plot the absolute value of the SHG spectra (as measured in experiment) in gnuplot syntax:   
+```
+plot 'shgL.xyz.4x4x4_15-spin.Nv8.Nc8' u 1:(($2+$4)**2+($3+$5)**2)**0.5 w l
+``` 

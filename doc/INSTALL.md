@@ -10,6 +10,7 @@
 
 The following software and modules are required to use OPTpy.
 
+  * abinit 7.10.5- (http://www.abinit.org)
   * python 2.7 (version 3 is not yet supported) 
   * numpy 1.6+      (http://www.scipy.org/)
   * pymatgen 3.0+   (http://pymatgen.org/)
@@ -33,9 +34,7 @@ Last update (July 2017)
 
 1. Load python modules  
 ```bash
-module swap intel gcc   
-module load python/2.7.8   
-module load virtualenv   
+module load python/2.7   
 ```
 
 2. Make a virtual environment   

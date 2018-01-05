@@ -45,8 +45,8 @@ flow = OPTflow(
     ncond=8,         # Number of conduction bands to include
     nval=8, # (= nval_total) All valence bands must be included, not working yet for nval < nval_total 
     # Response to calculate, see Doc. in responses.py
-    response=1,
-    components=["xx","yy","zz"],
+    response=21, #21 for SHG, 1 for linear response
+    components=["xyz"], #xyz tensor component
 
     #  WFN and RPMS calculation split by k-points
     split_by_proc=False,

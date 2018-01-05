@@ -4,7 +4,7 @@ Compute optical responses with OPTpy
 """
 from OPTpy import  OPTflow,Structure, lrc_mk_paraljob
 
-nproc = 16
+nproc = 4
 
 
 flow = OPTflow(
@@ -47,8 +47,11 @@ flow = OPTflow(
     ncond=8,         # Number of conduction bands to include
     nval=8, # (= nval_total) All valence bands must be included, not working yet for nval < nval_total 
     # Response to calculate, see Doc. in responses.py
-    response=1,
-    components=["xx","yy","zz"],
+    response=21, #SHG
+    components=["xyz"],
+    # Uncomment this for linear response along x, y, and z cartesian directions
+    #response=1,
+    #components=["xx","yy","zz"],
 
     #  WFN and RPMS calculation split by k-points
     split_by_proc=True,
